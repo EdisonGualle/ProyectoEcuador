@@ -1,0 +1,8 @@
+[02-Jun-2025 00:57:24 America/Bogota] PHP Warning:  Undefined property: stdClass::$access_token in C:\xampp\htdocs\raffle\web\controllers\curl.controller.php on line 81
+[02-Jun-2025 08:13:38 Europe/Berlin] PHP Warning:  Attempt to read property "status" on null in C:\xampp\htdocs\raffle\web\views\template.php on line 27
+[02-Jun-2025 08:13:38 Europe/Berlin] PHP Warning:  Attempt to read property "status" on null in C:\xampp\htdocs\raffle\web\views\template.php on line 47
+[02-Jun-2025 08:13:39 Europe/Berlin] PHP Warning:  Attempt to read property "status" on null in C:\xampp\htdocs\raffle\web\views\template.php on line 27
+[02-Jun-2025 08:13:39 Europe/Berlin] PHP Warning:  Attempt to read property "status" on null in C:\xampp\htdocs\raffle\web\views\template.php on line 47
+[02-Jun-2025 20:38:16 Europe/Berlin] PHP Notice:  date_default_timezone_set(): Timezone ID 'America/Guayaquil
+' is invalid in C:\xampp\htdocs\raffle\web\controllers\template.controller.php on line 95
+[02-Jun-2025 14:08:50 America/Bogota] PHP Warning:  Undefined property: stdClass::$email_raffle in C:\xampp\htdocs\raffle\web\controllers\orders.controller.php on line 202

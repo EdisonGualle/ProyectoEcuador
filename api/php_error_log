@@ -1,0 +1,105 @@
+[01-Jun-2025 06:12:43 Europe/Berlin] PHP Warning:  Undefined array key 0 in C:\xampp\htdocs\raffle\api\models\connection.php on line 107
+[01-Jun-2025 06:12:44 Europe/Berlin] PHP Warning:  Undefined array key 0 in C:\xampp\htdocs\raffle\api\models\connection.php on line 107
+[01-Jun-2025 06:12:46 Europe/Berlin] PHP Warning:  Undefined array key 0 in C:\xampp\htdocs\raffle\api\models\connection.php on line 107
+[01-Jun-2025 06:12:47 Europe/Berlin] PHP Warning:  Undefined array key 0 in C:\xampp\htdocs\raffle\api\models\connection.php on line 107
+[01-Jun-2025 06:12:47 Europe/Berlin] PHP Warning:  Undefined array key 0 in C:\xampp\htdocs\raffle\api\models\connection.php on line 107
+[01-Jun-2025 06:12:47 Europe/Berlin] PHP Warning:  Undefined array key 0 in C:\xampp\htdocs\raffle\api\models\connection.php on line 107
+[01-Jun-2025 06:12:48 Europe/Berlin] PHP Warning:  Undefined array key 0 in C:\xampp\htdocs\raffle\api\models\connection.php on line 107
+[01-Jun-2025 06:12:48 Europe/Berlin] PHP Warning:  Undefined array key 0 in C:\xampp\htdocs\raffle\api\models\connection.php on line 107
+[01-Jun-2025 06:12:48 Europe/Berlin] PHP Warning:  Undefined array key 0 in C:\xampp\htdocs\raffle\api\models\connection.php on line 107
+[01-Jun-2025 06:12:49 Europe/Berlin] PHP Warning:  Undefined array key 0 in C:\xampp\htdocs\raffle\api\models\connection.php on line 107
+[01-Jun-2025 06:12:49 Europe/Berlin] PHP Warning:  Undefined array key 0 in C:\xampp\htdocs\raffle\api\models\connection.php on line 107
+[01-Jun-2025 06:12:49 Europe/Berlin] PHP Warning:  Undefined array key 0 in C:\xampp\htdocs\raffle\api\models\connection.php on line 107
+[01-Jun-2025 06:12:50 Europe/Berlin] PHP Warning:  Undefined array key 0 in C:\xampp\htdocs\raffle\api\models\connection.php on line 107
+[01-Jun-2025 06:12:50 Europe/Berlin] PHP Warning:  Undefined array key 0 in C:\xampp\htdocs\raffle\api\models\connection.php on line 107
+[01-Jun-2025 06:13:03 Europe/Berlin] PHP Warning:  Undefined array key 0 in C:\xampp\htdocs\raffle\api\models\connection.php on line 107
+[01-Jun-2025 06:13:03 Europe/Berlin] PHP Warning:  Undefined array key 0 in C:\xampp\htdocs\raffle\api\models\connection.php on line 107
+[01-Jun-2025 06:13:08 Europe/Berlin] PHP Warning:  Undefined array key 0 in C:\xampp\htdocs\raffle\api\models\connection.php on line 107
+[01-Jun-2025 06:13:08 Europe/Berlin] PHP Warning:  Undefined array key 0 in C:\xampp\htdocs\raffle\api\models\connection.php on line 107
+[01-Jun-2025 06:13:09 Europe/Berlin] PHP Warning:  Undefined array key 0 in C:\xampp\htdocs\raffle\api\models\connection.php on line 107
+[01-Jun-2025 06:13:09 Europe/Berlin] PHP Warning:  Undefined array key 0 in C:\xampp\htdocs\raffle\api\models\connection.php on line 107
+[01-Jun-2025 06:33:31 Europe/Berlin] PHP Warning:  Undefined array key 0 in C:\xampp\htdocs\raffle\api\models\connection.php on line 107
+[01-Jun-2025 06:33:32 Europe/Berlin] PHP Warning:  Undefined array key 0 in C:\xampp\htdocs\raffle\api\models\connection.php on line 107
+[01-Jun-2025 23:53:02 Europe/Berlin] PHP Fatal error:  Uncaught TypeError: count(): Argument #1 ($value) must be of type Countable|array, PDOException given in C:\xampp\htdocs\raffle\api\controllers\get.controller.php:123
+Stack trace:
+#0 C:\xampp\htdocs\raffle\api\controllers\get.controller.php(17): GetController->fncResponse(Object(PDOException))
+#1 C:\xampp\htdocs\raffle\api\routes\services\get.php(79): GetController::getData('galeries', '*', 'id_galery', 'DESC', '0', '10')
+#2 C:\xampp\htdocs\raffle\api\routes\routes.php(75): include('C:\\xampp\\htdocs...')
+#3 C:\xampp\htdocs\raffle\api\controllers\routes.controller.php(13): include('C:\\xampp\\htdocs...')
+#4 C:\xampp\htdocs\raffle\api\index.php(29): RoutesController->index()
+#5 {main}
+  thrown in C:\xampp\htdocs\raffle\api\controllers\get.controller.php on line 123
+[01-Jun-2025 23:53:05 Europe/Berlin] PHP Fatal error:  Uncaught TypeError: count(): Argument #1 ($value) must be of type Countable|array, PDOException given in C:\xampp\htdocs\raffle\api\controllers\get.controller.php:123
+Stack trace:
+#0 C:\xampp\htdocs\raffle\api\controllers\get.controller.php(17): GetController->fncResponse(Object(PDOException))
+#1 C:\xampp\htdocs\raffle\api\routes\services\get.php(79): GetController::getData('galeries', '*', 'id_galery', 'DESC', '0', '10')
+#2 C:\xampp\htdocs\raffle\api\routes\routes.php(75): include('C:\\xampp\\htdocs...')
+#3 C:\xampp\htdocs\raffle\api\controllers\routes.controller.php(13): include('C:\\xampp\\htdocs...')
+#4 C:\xampp\htdocs\raffle\api\index.php(29): RoutesController->index()
+#5 {main}
+  thrown in C:\xampp\htdocs\raffle\api\controllers\get.controller.php on line 123
+[01-Jun-2025 23:53:07 Europe/Berlin] PHP Fatal error:  Uncaught TypeError: count(): Argument #1 ($value) must be of type Countable|array, PDOException given in C:\xampp\htdocs\raffle\api\controllers\get.controller.php:123
+Stack trace:
+#0 C:\xampp\htdocs\raffle\api\controllers\get.controller.php(17): GetController->fncResponse(Object(PDOException))
+#1 C:\xampp\htdocs\raffle\api\routes\services\get.php(79): GetController::getData('galeries', '*', 'id_galery', 'DESC', '0', '10')
+#2 C:\xampp\htdocs\raffle\api\routes\routes.php(75): include('C:\\xampp\\htdocs...')
+#3 C:\xampp\htdocs\raffle\api\controllers\routes.controller.php(13): include('C:\\xampp\\htdocs...')
+#4 C:\xampp\htdocs\raffle\api\index.php(29): RoutesController->index()
+#5 {main}
+  thrown in C:\xampp\htdocs\raffle\api\controllers\get.controller.php on line 123
+[01-Jun-2025 23:53:09 Europe/Berlin] PHP Fatal error:  Uncaught TypeError: count(): Argument #1 ($value) must be of type Countable|array, PDOException given in C:\xampp\htdocs\raffle\api\controllers\get.controller.php:123
+Stack trace:
+#0 C:\xampp\htdocs\raffle\api\controllers\get.controller.php(17): GetController->fncResponse(Object(PDOException))
+#1 C:\xampp\htdocs\raffle\api\routes\services\get.php(79): GetController::getData('galeries', '*', 'id_galery', 'DESC', '0', '10')
+#2 C:\xampp\htdocs\raffle\api\routes\routes.php(75): include('C:\\xampp\\htdocs...')
+#3 C:\xampp\htdocs\raffle\api\controllers\routes.controller.php(13): include('C:\\xampp\\htdocs...')
+#4 C:\xampp\htdocs\raffle\api\index.php(29): RoutesController->index()
+#5 {main}
+  thrown in C:\xampp\htdocs\raffle\api\controllers\get.controller.php on line 123
+[01-Jun-2025 23:53:57 Europe/Berlin] PHP Fatal error:  Uncaught TypeError: count(): Argument #1 ($value) must be of type Countable|array, PDOException given in C:\xampp\htdocs\raffle\api\controllers\get.controller.php:123
+Stack trace:
+#0 C:\xampp\htdocs\raffle\api\controllers\get.controller.php(17): GetController->fncResponse(Object(PDOException))
+#1 C:\xampp\htdocs\raffle\api\routes\services\get.php(79): GetController::getData('galeries', '*', 'id_galery', 'DESC', '0', '10')
+#2 C:\xampp\htdocs\raffle\api\routes\routes.php(75): include('C:\\xampp\\htdocs...')
+#3 C:\xampp\htdocs\raffle\api\controllers\routes.controller.php(13): include('C:\\xampp\\htdocs...')
+#4 C:\xampp\htdocs\raffle\api\index.php(29): RoutesController->index()
+#5 {main}
+  thrown in C:\xampp\htdocs\raffle\api\controllers\get.controller.php on line 123
+[01-Jun-2025 23:53:59 Europe/Berlin] PHP Fatal error:  Uncaught TypeError: count(): Argument #1 ($value) must be of type Countable|array, PDOException given in C:\xampp\htdocs\raffle\api\controllers\get.controller.php:123
+Stack trace:
+#0 C:\xampp\htdocs\raffle\api\controllers\get.controller.php(17): GetController->fncResponse(Object(PDOException))
+#1 C:\xampp\htdocs\raffle\api\routes\services\get.php(79): GetController::getData('galeries', '*', 'id_galery', 'DESC', '0', '10')
+#2 C:\xampp\htdocs\raffle\api\routes\routes.php(75): include('C:\\xampp\\htdocs...')
+#3 C:\xampp\htdocs\raffle\api\controllers\routes.controller.php(13): include('C:\\xampp\\htdocs...')
+#4 C:\xampp\htdocs\raffle\api\index.php(29): RoutesController->index()
+#5 {main}
+  thrown in C:\xampp\htdocs\raffle\api\controllers\get.controller.php on line 123
+[01-Jun-2025 23:55:15 Europe/Berlin] PHP Fatal error:  Uncaught TypeError: count(): Argument #1 ($value) must be of type Countable|array, PDOException given in C:\xampp\htdocs\raffle\api\controllers\get.controller.php:123
+Stack trace:
+#0 C:\xampp\htdocs\raffle\api\controllers\get.controller.php(17): GetController->fncResponse(Object(PDOException))
+#1 C:\xampp\htdocs\raffle\api\routes\services\get.php(79): GetController::getData('galeries', '*', 'id_galery', 'DESC', '0', '10')
+#2 C:\xampp\htdocs\raffle\api\routes\routes.php(75): include('C:\\xampp\\htdocs...')
+#3 C:\xampp\htdocs\raffle\api\controllers\routes.controller.php(13): include('C:\\xampp\\htdocs...')
+#4 C:\xampp\htdocs\raffle\api\index.php(29): RoutesController->index()
+#5 {main}
+  thrown in C:\xampp\htdocs\raffle\api\controllers\get.controller.php on line 123
+[01-Jun-2025 23:55:18 Europe/Berlin] PHP Fatal error:  Uncaught TypeError: count(): Argument #1 ($value) must be of type Countable|array, PDOException given in C:\xampp\htdocs\raffle\api\controllers\get.controller.php:123
+Stack trace:
+#0 C:\xampp\htdocs\raffle\api\controllers\get.controller.php(17): GetController->fncResponse(Object(PDOException))
+#1 C:\xampp\htdocs\raffle\api\routes\services\get.php(79): GetController::getData('galeries', '*', 'id_galery', 'DESC', '0', '10')
+#2 C:\xampp\htdocs\raffle\api\routes\routes.php(75): include('C:\\xampp\\htdocs...')
+#3 C:\xampp\htdocs\raffle\api\controllers\routes.controller.php(13): include('C:\\xampp\\htdocs...')
+#4 C:\xampp\htdocs\raffle\api\index.php(29): RoutesController->index()
+#5 {main}
+  thrown in C:\xampp\htdocs\raffle\api\controllers\get.controller.php on line 123
+[02-Jun-2025 20:18:37 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[HY000]: General error: 2006 MySQL server has gone away in C:\xampp\htdocs\raffle\api\models\connection.php:90
+Stack trace:
+#0 C:\xampp\htdocs\raffle\api\models\connection.php(90): PDO->query('SELECT COLUMN_N...')
+#1 C:\xampp\htdocs\raffle\api\models\get.model.php(19): Connection::getColumnsData('admins', Array)
+#2 C:\xampp\htdocs\raffle\api\controllers\get.controller.php(14): GetModel::getData('admins', '*', NULL, NULL, NULL, NULL)
+#3 C:\xampp\htdocs\raffle\api\routes\services\get.php(79): GetController::getData('admins', '*', NULL, NULL, NULL, NULL)
+#4 C:\xampp\htdocs\raffle\api\routes\routes.php(75): include('C:\\xampp\\htdocs...')
+#5 C:\xampp\htdocs\raffle\api\controllers\routes.controller.php(13): include('C:\\xampp\\htdocs...')
+#6 C:\xampp\htdocs\raffle\api\index.php(29): RoutesController->index()
+#7 {main}
+  thrown in C:\xampp\htdocs\raffle\api\models\connection.php on line 90
