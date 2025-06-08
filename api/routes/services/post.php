@@ -2,7 +2,32 @@
 
 require_once "models/connection.php";
 require_once "controllers/post.controller.php";
+require_once "controllers/random.controller.php";
 
+// 👉 Ruta personalizada para generar números aleatorios
+if (isset($_GET["random"]) && $_GET["random"] == "sales") {
+
+    if (
+        isset($_POST["id_raffle"]) &&
+        isset($_POST["id_client"]) &&
+        isset($_POST["id_order"]) &&
+        isset($_POST["qty"])
+    ) {
+        RandomController::generateRandomSales(
+            $_POST["id_raffle"],
+            $_POST["id_client"],
+            $_POST["id_order"],
+            $_POST["qty"]
+        );
+        return;
+    } else {
+        echo json_encode([
+            "status" => 400,
+            "msg" => "Faltan parámetros: id_raffle, id_client, id_order, qty"
+        ]);
+        return;
+    }
+}
 if(isset($_POST)){
 
 	/*=============================================

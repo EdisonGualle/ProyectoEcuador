@@ -1,180 +1,120 @@
-<?php 
+<?php
 
 $status = "";
 
-if(isset($_GET["ref"])){
+if (isset($_GET["ref"])) {
 
-	/*=============================================
-	Traer info de la orden y del sorteo
-	=============================================*/
-
-	$url = "relations?rel=orders,clients,raffles&type=order,client,raffle&linkTo=ref_order&equalTo=".$_GET["ref"];
+	$url = "relations?rel=orders,clients,raffles&type=order,client,raffle&linkTo=ref_order&equalTo=" . $_GET["ref"];
 	$method = "GET";
 	$fields = array();
 
-	$order = CurlController::request($url,$method,$fields);
+	$order = CurlController::request($url, $method, $fields);
 
-	if($order->status == 200){
+	if ($order->status == 200) {
 
 		$order = $order->results[0];
-		// echo '<pre>$order '; print_r($order); echo '</pre>';
 
-		// return;
+		if ($order->status_order == "PENDING") {
 
-		if($order->status_order == "PENDING"){
+			if ($order->method_order == "paypal") {
 
-			/*=============================================
-			Validar el pago con PayPal
-			=============================================*/
+				$url = "v2/checkout/orders/" . $order->id_pay_order;
+				$paypal = CurlController::paypal($url, "GET", []);
 
-			if($order->method_order == "paypal"){
-
-				$url = "v2/checkout/orders/".$order->id_pay_order;
-				$paypal = CurlController::paypal($url,$method,$fields);
-				
-				
-				if($paypal->status == "APPROVED"){
-
-					$status = "PAID";
-
+				if (!isset($paypal->status)) {
+					echo "<div class='alert alert-danger text-center'>❌ No se pudo verificar el estado del pago. Intenta nuevamente.</div>";
+					return;
 				}
 
+				if ($paypal->status !== "APPROVED") {
+					echo "<div class='alert alert-warning text-center'>⚠️ El pago fue cancelado o no se completó. Tu pedido sigue pendiente.</div>";
+					return;
+				}
+
+				$status = "PAID";
 			}
 
-			/*=============================================
-			Validar el pago con D-LOCAL
-			=============================================*/
+			if (isset($status) && $status === "PAID") {
 
-			// if($order->method_order == "dlocal"){
+				$numbers = explode(",", $order->numbers_order);
+				$totalSales = 0;
 
-			// 	$url = "v1/payments/".$order->id_pay_order;
-			// 	$dlocal = CurlController::dlocal($url,$method,$fields);
-				
-			// 	if($dlocal->status == "PAID"){
+				// Verificar disponibilidad de cada número
+				foreach ($numbers as $number) {
+					$checkUrl = "sales?linkTo=number_sale,id_raffle_sale&equalTo={$number},{$order->id_raffle}";
+					$check = CurlController::request($checkUrl, "GET", []);
+					if ($check->status == 200) {
+						echo "<div class='alert alert-danger text-center'>❌ El número <strong>{$number}</strong> ya fue tomado por otro usuario. No se puede completar la orden. Contacta con soporte.</div>";
+						return;
+					}
+				}
 
-			// 		$status = "PAID";
-			// 	}
-
-			// }
-
-			/*=============================================
-			Actualizar la orden y las ventas
-			=============================================*/
-
-			if($status == "PAID"){
-
-				if($order->status_order == "PENDING"){
-
-					/*=============================================
-					Actualizar orden en base de datos
-					=============================================*/ 
-
-					$url = "orders?id=".$order->id_order."&nameId=id_order&token=no&except=id_order";
-					$method = "PUT";
+				// Crear las ventas
+				foreach ($numbers as $number) {
+					$url = "sales?token=no&except=id_sale";
+					$method = "POST";
 					$fields = array(
-						"status_order" => $status
+						"id_raffle_sale" => $order->id_raffle,
+						"id_client_sale" => $order->id_client,
+						"id_order_sale" => $order->id_order,
+						"number_sale" => $number,
+						"status_sale" => "PAID",
+						"date_created_sale" => date("Y-m-d")
 					);
 
-					$fields = http_build_query($fields);
+					$createSale = CurlController::request($url, $method, $fields);
 
-					$orderUpdate = CurlController::request($url,$method,$fields);
-
-					if($orderUpdate->status == 200){
-
-						/*=============================================
-						Actualizar ventas en base de datos
-						=============================================*/ 
-
-						$url = "sales?linkTo=id_order_sale&equalTo=".$order->id_order;
-						$method = "GET";
-						$fields = array();
-
-						$getSales = CurlController::request($url,$method,$fields);
-
-						if($getSales->status == 200){
-
-							$totalSales = 0;
-
-							foreach ($getSales->results as $key => $value) {
-								
-								$url = "sales?id=".$value->id_sale."&nameId=id_sale&token=no&except=id_sale";
-								$method = "PUT";
-								$fields = array(
-									"status_sale" => $status
-								);
-
-								$fields = http_build_query($fields);
-
-								$salesUpdate = CurlController::request($url,$method,$fields);
-
-								if($salesUpdate->status == 200){
-
-									$totalSales++;
-
-									if($totalSales == count($getSales->results)){
-
-										/*=============================================
-							            Enviar correo electrónico
-							            =============================================*/
-
-							            $subject = "[ProyectoEcuador] Confirmación de compra # ".$order->ref_order;
-							            $email = $order->email_client;
-							            $title = "[ProyectoEcuador] Pedido # ".$order->ref_order;
-							            $message = "<h4>¡Gracias por tu compra!</h4><h5>Estos son tus números elegidos: <h1><strong>".$order->numbers_order."</strong></h1><br><strong>¡ATENCIÓN!</strong><br><br> A continuación haga clic en el siguiente botón para que ingrese al grupo de WhatsApp del Sorteo y esté informado de los resultados</h5><br><br>";
-							             $link = $order->group_ws_raffle;
-
-							            $sendEmail = TemplateController::sendEmail($subject, $email, $title, $message, $link); 
-
-							            if($sendEmail == "ok"){
-
-							            	echo '<div class="col-12 mx-1 mb-3 text-center alert alert-success">Su pago ha sido acreditado, revisa tu correo electrónico</div>';
-							            }else{
-
-							            	echo '<div class="col-12 mx-1 mb-3 text-center alert alert-warning">Su pago ha sido acreditado, pero tuvimos problemas al enviar la notificación del correo electrónico</div>';
-							            }
-									}
-								}
-
-							}
-
-						}
-
+					if ($createSale->status == 200) {
+						$totalSales++;
+					} else {
+						echo '<div class="alert alert-danger text-center">❌ Error al registrar el número ' . $number . '. Contacta con soporte.</div>';
+						return;
 					}
-
 				}
-			
-			}else{
 
-				$status = "PENDING";
+				// Actualizar estado de la orden
+				$url = "orders?id=" . $order->id_order . "&nameId=id_order&token=no&except=id_order";
+				$method = "PUT";
+				$fields = http_build_query(["status_order" => $status]);
+				CurlController::request($url, $method, $fields);
 
+				// Enviar correo al cliente
+				$subjectClient = "🎉 ¡Gracias por tu compra " . TemplateController::capitalize($order->name_client) . "!";
+				$emailClient = trim($order->email_client);
+				$titleClient = "[ProyectoEcuador] Pedido # " . $order->ref_order;
+
+				$messageClient = "
+				<p>Hola <strong>" . TemplateController::capitalize($order->name_client) . " " . TemplateController::capitalize($order->surname_client) . "</strong>,</p>
+				<p>Gracias por participar en nuestro sorteo 🎊</p>
+				<p><strong>Estos son tus números:</strong></p>
+				<h1 style='margin: 10px 0;'>" . $order->numbers_order . "</h1>
+				<p>📢 <strong>¡ATENCIÓN!</strong></p>
+				<p>Únete al grupo de WhatsApp para recibir actualizaciones y noticias del sorteo</p>
+				<p style='margin-top: 20px;'>🍀 ¡Te deseamos mucha suerte!</p>";
+
+				$urlReturn = $_SERVER["REQUEST_SCHEME"] . "://" . $_SERVER["SERVER_NAME"];
+				$linkPedido = $urlReturn . "/thanks?ref=" . $order->ref_order;
+				$linkWhatsapp = $order->group_ws_raffle ?? 'https://proyectoecuador.com/ingresar';
+
+				$sendEmail = TemplateController::sendEmail($subjectClient, $emailClient, $titleClient, $messageClient, $linkPedido, $linkWhatsapp);
+
+				if ($sendEmail == "ok") {
+					echo '<div class="col-12 mx-1 mb-3 text-center alert alert-success">✅ Su pago ha sido acreditado. Revisa tu correo electrónico 📩</div>';
+				} else {
+					echo '<div class="col-12 mx-1 mb-3 text-center alert alert-warning">⚠️ Su pago fue exitoso, pero hubo un problema al enviar el correo</div>';
+				}
 			}
-
-		}else{
-
+		} else {
 			$status = "PAID";
 		}
 
 		include "modules/hero/hero.php";
 		include "modules/main/main.php";
 
-	}else{
-
-		echo "<script>
-			window.location = '/';
-		</script>";
-
-		return;
-
+	} else {
+		echo "<script>window.location = '/';</script>";
 	}
-
-}else{
-
-	echo "<script>
-		window.location = '/';
-	</script>";
-
-	return;
+} else {
+	echo "<script>window.location = '/';</script>";
 }
-
-
- ?>
+?>

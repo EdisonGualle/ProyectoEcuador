@@ -4,8 +4,8 @@ class OrdersController
 {
 
 	/*=============================================
-	Crear Orden
-	=============================================*/
+				   Crear Orden
+				   =============================================*/
 
 	public function orderCreate()
 	{
@@ -16,10 +16,10 @@ class OrdersController
 			echo '<div class="col-12 mx-1 mb-3 text-center alert alert-warning"><div class="spinner-border spinner-border-sm"></div> Procesando su pedido, será redirigido a nuestra pasarela de pagos...</div>';
 
 			/*=============================================
-			Traemos el sorteo
-			=============================================*/
+														 Traemos el sorteo
+														 =============================================*/
 
-			$url = "raffles?linkTo=id_raffle,status_raffle&equalTo=".$_POST["raffle"].",1&select=id_raffle,price_raffle,group_ws_raffle,email_raffle";
+			$url = "raffles?linkTo=id_raffle,status_raffle&equalTo=" . $_POST["raffle"] . ",1&select=id_raffle,price_raffle,group_ws_raffle,email_raffle";
 			$method = "GET";
 			$fields = array();
 
@@ -36,15 +36,15 @@ class OrdersController
 			}
 
 			/*=============================================
-			Capturar el precio y el total
-			=============================================*/
+														 Capturar el precio y el total
+														 =============================================*/
 
 			$numbers = explode(",", $_POST["numbers"]);
 			$total = count($numbers) * $raffle->price_raffle;
 
 			/*=============================================
-			Validar que el número no haya sido comprado
-			=============================================*/
+														 Validar que el número no haya sido comprado
+														 =============================================*/
 
 			foreach ($numbers as $key => $value) {
 
@@ -63,8 +63,8 @@ class OrdersController
 			}
 
 			/*=============================================
-			Crear el Cliente
-			=============================================*/
+														 Crear el Cliente
+														 =============================================*/
 
 			$url = "clients?token=no&except=id_client";
 			$method = "POST";
@@ -83,8 +83,8 @@ class OrdersController
 			if ($createClient->status == 200) {
 
 				/*=============================================
-				Crear la orden
-				=============================================*/
+																			Crear la orden
+																			=============================================*/
 
 				$ref = TemplateController::genCodec(11);
 
@@ -106,8 +106,8 @@ class OrdersController
 				if ($createOrder->status == 200) {
 
 					/*=============================================
-					Actualizamos el ID de la Orden en el Cliente
-					=============================================*/
+																							   Actualizamos el ID de la Orden en el Cliente
+																							   =============================================*/
 
 					$url = "clients?id=" . $createClient->results->lastId . "&nameId=id_client&token=no&except=id_client";
 					$method = "PUT";
@@ -121,153 +121,74 @@ class OrdersController
 
 					if ($updateClient->status == 200) {
 
+						$urlReturn = $_SERVER["REQUEST_SCHEME"] . "://" . $_SERVER["SERVER_NAME"];
+
 						/*=============================================
-						Crear las ventas
-						=============================================*/
+						   Pasarela de pagos de PayPal
+						   =============================================*/
+						if ($_POST["optradio"] == "paypal") {
 
-						$totalSales = 0;
+							$url = 'v2/checkout/orders';
+							$method = 'POST';
+							$fields = '{
+		  "intent": "CAPTURE",
+		  "purchase_units": [
+		    {
+		      "reference_id": "' . $ref . '",
+		      "amount": {
+		        "currency_code": "USD",
+		        "value": "' . number_format($total, 2) . '"
+		      }
+		    }
+		  ],
+		  "payment_source": {
+		    "paypal": {
+		      "experience_context": {
+		        "payment_method_preference": "IMMEDIATE_PAYMENT_REQUIRED",
+		        "user_action": "PAY_NOW",
+		        "return_url": "' . $urlReturn . '/thanks?ref=' . $ref . '",
+		        "cancel_url": "' . $urlReturn . '/checkout?numbers=' . $_GET["numbers"] . '"
+		      }
+		    }
+		  }
+		}';
 
-						foreach ($numbers as $key => $value) {
+							$paypal = CurlController::paypal($url, $method, $fields);
 
-							$url = "sales?token=no&except=id_sale";
-							$method = "POST";
-							$fields = array(
-								"id_raffle_sale" => $raffle->id_raffle,
-								"id_client_sale" => $createClient->results->lastId,
-								"id_order_sale" => $createOrder->results->lastId,
-								"number_sale" => $value,
-								"status_sale" => "PENDING",
-								"date_created_sale" => date("Y-m-d")
-							);
+							if (isset($paypal->status) && $paypal->status == "PAYER_ACTION_REQUIRED") {
 
-							$createSale = CurlController::request($url, $method, $fields);
+								$url = "orders?id=" . $createOrder->results->lastId . "&nameId=id_order&token=no&except=id_pay_order";
+								$method = "PUT";
+								$fields = "id_pay_order=" . $paypal->id;
 
-							if ($createSale->status == 200) {
+								$updateOrder = CurlController::request($url, $method, $fields);
 
-								$totalSales++;
+								if ($updateOrder->status == 200) {
 
-								if ($totalSales == count($numbers)) {
+									/* Enviar correo al administrador */
+									$subjectAdmin = "[ProyectoEcuador] Pedido recibido por $" . number_format($total, 2);
+									$emailAdmin = $raffle->email_raffle ?? 'admin@proyectoecuador.com';
+									$titleAdmin = "[ProyectoEcuador] Pedido # " . $ref;
 
+									$messageAdmin = "
+										<p>De <strong>" . TemplateController::capitalize($_POST["name"]) . " " . TemplateController::capitalize($_POST["surname"]) . "</strong>,</p>
+										<p>📞 Whatsapp: " . trim($_POST["whatsapp"]) . "<br>
+										📧 Email: " . trim($_POST["email"]) . "</p>
+										<p><strong>Número(s):</strong> <strong>" . $_POST["numbers"] . "</strong></p>
+										";
 
-									$urlReturn = $_SERVER["REQUEST_SCHEME"] . "://" . $_SERVER["SERVER_NAME"];
+									$linkAdmin = "https://proyectoecuador.com/ingresar";
+									TemplateController::sendEmail($subjectAdmin, $emailAdmin, $titleAdmin, $messageAdmin, $linkAdmin);
 
-									/*=============================================
-									Pasarela de pagos de PayPal
-									=============================================*/
-
-										if($_POST["optradio"] == "paypal"){
-
-										$url = 'v2/checkout/orders';
-										$method = 'POST';
-										$fields = '{
-											          "intent": "CAPTURE",
-											          "purchase_units": [
-											          {
-											            "reference_id": "'.$ref.'",
-											            "amount": {
-											              "currency_code": "USD",
-											              "value": "'.number_format($total,2).'"
-											            }
-											          }
-											          ],
-											          "payment_source": {
-											            "paypal": {
-											              "experience_context": {
-											                "payment_method_preference": "IMMEDIATE_PAYMENT_REQUIRED",
-											                "user_action": "PAY_NOW",
-											                "return_url": "'.$urlReturn.'/thanks?ref='.$ref.'",
-											                "cancel_url": "'.$urlReturn.'/checkout?numbers='.$_GET["numbers"].'"
-											              }
-											            }
-											          }
-											        }';
-
-										$paypal = CurlController::paypal($url,$method,$fields);
-
-										if(isset($paypal->status) && $paypal->status == "PAYER_ACTION_REQUIRED"){
-
-											$url = "orders?id=".$createOrder->results->lastId."&nameId=id_order&token=no&except=id_pay_order";
-												$method = "PUT";
-												$fields = "id_pay_order=".$paypal->id;
-
-											$updateOrder = CurlController::request($url,$method,$fields);
-
-											if($updateOrder->status == 200){
-
-												/*=============================================
-									            Enviar correo electrónico
-									            =============================================*/
-
-									            $subject = "[ProyectoEcuador] Recibirá un pago de $".number_format($total,2)." por ".$_POST["optradio"];
-									            $email = $raffle->email_raffle;
-									            $title = "[ProyectoEcuador] Pedido # ".$ref;
-									            $message = "<h4>¡Recibirá un pago de $".number_format($total,2)."!</h4><h5>De ".TemplateController::capitalize(trim($_POST["name"]))." ".TemplateController::capitalize(trim($_POST["surname"])).", whatsapp: ".trim($_POST["whatsapp"]).", email: ".trim($_POST["email"]).".<br> De los número(s): <h1><strong>".$_POST["numbers"]."</strong></h1></h5><br><br>";
-									             $link = $urlReturn.'/thanks?ref='.$ref;
-
-									            TemplateController::sendEmail($subject, $email, $title, $message, $link); 
-
-												echo "<script>
-													window.location = '".$paypal->links[1]->href."';
-												</script>";
-
-											}
-										}else{
-
-											echo '<div class="col-12 mx-1 mb-3 text-center alert alert-danger">ERROR: PayPal presenta errores, intenta con otro medio de pago</div>';
-
-												return;
-										}
-
-									}
-
-
-									/*=============================================
-									Pasarela de pagos de D-LOCAL
-									=============================================*/
-
-									// if($_POST["optradio"] == "dlocal"){
-
-									// 	$url = 'v1/payments/';
-									// 	$method = 'POST';
-									// 	$fields = '{
-									// 		        "amount": '.number_format($total,2).',
-									// 		        "currency" : "USD",
-									// 		        "name": "'.TemplateController::capitalize(trim($_POST["name"])).' '.TemplateController::capitalize(trim($_POST["surname"])).'",
-									// 		        "email": "'.trim($_POST["email"]).'",
-									// 		        "success_url":"'.$urlReturn.'/thanks?ref='.$ref.'",
-									// 		        "back_url":"'.$urlReturn.'/checkout?numbers='.$_GET["numbers"].'"
-									// 		    }';
-
-									// 	$dlocal = CurlController::dlocal($url,$method,$fields);
-
-									// 	if(isset($dlocal->status) && $dlocal->status == "PENDING"){
-
-									// 		$url = "orders?id=".$createOrder->results->lastId."&nameId=id_order&token=no&except=id_pay_order";
-									// 			$method = "PUT";
-									// 			$fields = "id_pay_order=".$dlocal->id;
-
-									// 		$updateOrder = CurlController::request($url,$method,$fields);
-
-									// 		if($updateOrder->status == 200){
-
-									// 			echo "<script>
-									// 				window.location = '".$dlocal->redirect_url."';
-									// 			</script>";
-
-									// 		}
-
-									// 	}else{
-
-									// 		echo '<div class="col-12 mx-1 mb-3 text-center alert alert-danger">ERROR: D-Local presenta errores, intenta con otro medio de pago</div>';
-
-									// 			return;
-									// 	}
-									// }
-
+									echo "<script>window.location = '" . $paypal->links[1]->href . "';</script>";
 								}
+							} else {
+								echo '<div class="col-12 mx-1 mb-3 text-center alert alert-danger">ERROR: PayPal presenta errores, intenta con otro medio de pago</div>';
+								return;
 							}
 						}
 					}
+
 				}
 			}
 		}
