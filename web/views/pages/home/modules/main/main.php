@@ -14,7 +14,7 @@ if($response->status == 200){
     $sales = [];
 }
 
-// RANGO desde min_number y max_number (NO se usa numbers_raffle)
+// RANGO desde min_number y max_number 
 $start = isset($raffle->min_number) ? intval($raffle->min_number) : 0;
 $end = isset($raffle->max_number) ? intval($raffle->max_number) : 0;
 $diff = ($end - $start) + 1;

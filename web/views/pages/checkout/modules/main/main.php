@@ -44,13 +44,8 @@ MAIN
                                 </span>
 
 
-                                <input
-                                    type="text"
-                                    class="form-control rounded-end py-3"
-                                    placeholder="Nombre(s)"
-                                    onchange="validateJS(event,'text')"
-                                    name="name"
-                                    required>
+                                <input type="text" class="form-control rounded-end py-3" placeholder="Nombre(s)"
+                                    onchange="validateJS(event,'text')" name="name" required>
 
                                 <div class="invalid-feedback">Por favor llena este campo correctamente.</div>
 
@@ -68,13 +63,8 @@ MAIN
                                 </span>
 
 
-                                <input
-                                    type="text"
-                                    class="form-control rounded-end py-3"
-                                    placeholder="Apellido(s)"
-                                    onchange="validateJS(event,'text')"
-                                    name="surname"
-                                    required>
+                                <input type="text" class="form-control rounded-end py-3" placeholder="Apellido(s)"
+                                    onchange="validateJS(event,'text')" name="surname" required>
 
                                 <div class="invalid-feedback">Por favor llena este campo correctamente.</div>
 
@@ -94,19 +84,14 @@ MAIN
                                     <i class="bi bi-whatsapp"></i>
                                 </span>
 
-                                <input
-                                    id="phone-mask"
-                                    type="text"
-                                    class="form-control rounded-end py-3"
-                                    placeholder="Número WhatsApp. Ej: +57(300)392-54-81"
-                                    name="whatsapp"
-                                    required>
-
-                                <div class="invalid-feedback">Por favor llena este campo correctamente.</div>
-
+                                <input id="phone-mask" type="text" class="form-control rounded-end py-3"
+                                    placeholder="Número WhatsApp. Ej: +593 99 285 2752" name="whatsapp" required>
+                                <div class="invalid-feedback">Por favor ingresa un número válido de WhatsApp en Ecuador.
+                                </div>
                             </div>
 
                         </div>
+
 
                         <!--==============================================
                         CORREO ELECTRÓNICO
@@ -120,12 +105,8 @@ MAIN
                                     <i class="bi bi-envelope"></i>
                                 </span>
 
-                                <input
-                                    type="email"
-                                    class="form-control rounded-end py-3"
-                                    placeholder="Correo Electrónico"
-                                    onchange="validateJS(event,'email')"
-                                    name="email"
+                                <input type="email" class="form-control rounded-end py-3"
+                                    placeholder="Correo Electrónico" onchange="validateJS(event,'email')" name="email"
                                     required>
 
                                 <div class="invalid-feedback">Por favor llena este campo correctamente.</div>
@@ -147,13 +128,9 @@ MAIN
                                 </span>
 
 
-                                <input
-                                    type="email"
-                                    class="form-control rounded-end py-3"
+                                <input type="email" class="form-control rounded-end py-3"
                                     placeholder="Confirma el Correo Electrónico"
-                                    onchange="validateEmailx2(event,'email')"
-                                    name="email_2"
-                                    required>
+                                    onchange="validateEmailx2(event,'email')" name="email_2" required>
 
                                 <div class="invalid-feedback">Por favor llena este campo correctamente.</div>
 
@@ -188,7 +165,9 @@ MAIN
                                         <div class="d-flex justify-content-between">
 
                                             <div class="py-2 pl-3 josefin-sans-700 h4">Total a pagar:</div>
-                                            <div class="py-2 pr-3 josefin-sans-700 h4">$<?php echo number_format(count($numbers) * $raffle->price_raffle, 2) ?> USD</div>
+                                            <div class="py-2 pr-3 josefin-sans-700 h4">
+                                                $<?php echo number_format(count($numbers) * $raffle->price_raffle, 2) ?>
+                                                USD</div>
 
                                         </div>
 
@@ -218,13 +197,16 @@ MAIN
 
                                             <div class="form-check px-2 mb-3">
 
-                                                <input type="radio" class="form-check-input mt-2 ml-1 changePaid" id="radio1" name="optradio" value="paypal" checked mode="paidPayPal">
+                                                <input type="radio" class="form-check-input mt-2 ml-1 changePaid"
+                                                    id="radio1" name="optradio" value="paypal" checked
+                                                    mode="paidPayPal">
 
                                                 <label for="radio1" class="form-check-label float-end mt-2">
 
                                                     <span>
                                                         PayPal
-                                                        <img src="/views/assets/img/paypal.jpg" class="img-fluid" style="width:200px">
+                                                        <img src="/views/assets/img/paypal.jpg" class="img-fluid"
+                                                            style="width:200px">
                                                     </span>
 
                                                 </label>
@@ -241,13 +223,15 @@ MAIN
 
                                             <div class="form-check px-2 mb-3">
 
-                                                <input type="radio" class="form-check-input mt-2 ml-1 changePaid" id="radio2" name="optradio" value="dlocal" mode="paidDlocal">
+                                                <input type="radio" class="form-check-input mt-2 ml-1 changePaid"
+                                                    id="radio2" name="optradio" value="dlocal" mode="paidDlocal">
 
                                                 <label for="radio2" class="form-check-label float-end mt-2">
 
                                                     <span>
                                                         d-local go
-                                                        <img src="/views/assets/img/d-local-go.jpg" class="img-fluid" style="width:200px">
+                                                        <img src="/views/assets/img/d-local-go.jpg" class="img-fluid"
+                                                            style="width:200px">
                                                     </span>
 
                                                 </label>
@@ -276,7 +260,9 @@ MAIN
 
                                     <div class="card-header mb-0 pb-0">
 
-                                        <figure class="text-center"><small>Usarás</small> <img src="/views/assets/img/paypal.png" style="width:80px;"> <br><small>Todas las transacciones son seguras y están encriptadas.</small></figure>
+                                        <figure class="text-center"><small>Usarás</small> <img
+                                                src="/views/assets/img/paypal.png" style="width:80px;"> <br><small>Todas
+                                                las transacciones son seguras y están encriptadas.</small></figure>
 
                                     </div>
 
@@ -287,7 +273,8 @@ MAIN
                                             <div class="small">
 
                                                 <div class="px-2 mb-2 text-center pb-2">
-                                                    <small class="small">Luego de hacer clic en “Comprar ahora”, serás redirigido a PayPal.</small>
+                                                    <small class="small">Luego de hacer clic en “Comprar ahora”, serás
+                                                        redirigido a PayPal.</small>
                                                 </div>
                                             </div>
 
@@ -301,7 +288,10 @@ MAIN
 
                                     <div class="card-header mb-0 pb-0">
 
-                                        <figure class="text-center"><small>Usarás</small> <img src="/views/assets/img/d-local-go.png" style="width:80px;"> <br><small>Todas las transacciones son seguras y están encriptadas.</small></figure>
+                                        <figure class="text-center"><small>Usarás</small> <img
+                                                src="/views/assets/img/d-local-go.png" style="width:80px;">
+                                            <br><small>Todas las transacciones son seguras y están encriptadas.</small>
+                                        </figure>
 
                                     </div>
 
@@ -312,14 +302,23 @@ MAIN
                                             <div class="small">
 
                                                 <div class="d-flex justify-content-around mb-3">
-                                                    <div class="py-2 px-3 mx-2 rounded border" style="border:2px solid #000 !important"><i class="bi bi-credit-card"></i><br> Tarjeta de crédito</div>
-                                                    <div class="py-2 px-3 mx-2 rounded border" style="border:2px solid #000 !important"><i class="bi bi-credit-card-2-back"></i><br> Tarjeta de débito</div>
-                                                    <div class="py-2 px-3 mx-2 rounded border" style="border:2px solid #000 !important"><i class="bi bi-bank"></i><br> Transferencia bancaria</div>
+                                                    <div class="py-2 px-3 mx-2 rounded border"
+                                                        style="border:2px solid #000 !important"><i
+                                                            class="bi bi-credit-card"></i><br> Tarjeta de crédito</div>
+                                                    <div class="py-2 px-3 mx-2 rounded border"
+                                                        style="border:2px solid #000 !important"><i
+                                                            class="bi bi-credit-card-2-back"></i><br> Tarjeta de débito
+                                                    </div>
+                                                    <div class="py-2 px-3 mx-2 rounded border"
+                                                        style="border:2px solid #000 !important"><i
+                                                            class="bi bi-bank"></i><br> Transferencia bancaria</div>
                                                 </div>
 
 
                                                 <div class="p-2 text-center mb-2">
-                                                    <small class="small">Luego de hacer clic en “Comprar ahora”, serás redirigido a Tarjetas locales, Transferencias y Efectivo para completar tu compra de forma segura.</small>
+                                                    <small class="small">Luego de hacer clic en “Comprar ahora”, serás
+                                                        redirigido a Tarjetas locales, Transferencias y Efectivo para
+                                                        completar tu compra de forma segura.</small>
                                                 </div>
                                             </div>
 
@@ -341,7 +340,9 @@ MAIN
 
                             <div class="col-12 px-5 pb-3">
 
-                                <button type="submit" class="btn btn-block w-100 b1 rounded py-3 josefin-sans-700 text-uppercase border-0">Comprar ahora</button>
+                                <button type="submit"
+                                    class="btn btn-block w-100 b1 rounded py-3 josefin-sans-700 text-uppercase border-0">Comprar
+                                    ahora</button>
 
                             </div>
 
@@ -362,5 +363,52 @@ MAIN
         </form>
 
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const phoneInput = document.getElementById('phone-mask');
+
+            if (phoneInput) {
+                // Aplicar máscara con IMask para número de Ecuador: +593 99 999 9999
+                const mask = IMask(phoneInput, {
+                    mask: '+{593} 00 000 0000'
+                });
+
+                const form = document.querySelector("form.needs-validation");
+
+                if (form) {
+                    // Validación personalizada al enviar el formulario
+                    form.addEventListener("submit", function (e) {
+                        const phone = phoneInput.value.trim();
+
+                        const isValidPhone = /^\+593 \d{2} \d{3} \d{4}$/.test(phone);
+
+                        if (!isValidPhone) {
+                            e.preventDefault();
+                            e.stopPropagation();
+
+                            phoneInput.classList.add("is-invalid");
+                            phoneInput.classList.remove("is-valid");
+                            phoneInput.parentElement.classList.add("was-validated");
+                            phoneInput.nextElementSibling.innerText = "Número de WhatsApp incompleto.";
+                        }
+                    });
+
+                    // Quitar error automáticamente al corregir
+                    phoneInput.addEventListener("input", function () {
+                        const phone = phoneInput.value.trim();
+
+                        if (/^\+593 \d{2} \d{3} \d{4}$/.test(phone)) {
+                            phoneInput.classList.remove("is-invalid");
+                            phoneInput.classList.add("is-valid");
+                            phoneInput.parentElement.classList.remove("was-validated");
+                        } else {
+                            phoneInput.classList.remove("is-valid");
+                        }
+                    });
+                }
+            }
+        });
+    </script>
 
 </div>
