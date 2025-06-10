@@ -234,29 +234,27 @@ MAIN
                                         </div>
 
                                         <div class="col pt-2 px-2">
-
                                             <div class="card rounded px-4 py-1">
-
                                                 <div class="form-check px-2 mb-3">
 
                                                     <input type="radio" class="form-check-input mt-2 ml-1 changePaid"
-                                                        id="radio2" name="optradio" value="dlocal" mode="paidDlocal">
+                                                        id="radio3" name="optradio" value="transferencia"
+                                                        mode="paidBank">
 
-                                                    <label for="radio2" class="form-check-label float-end mt-2">
+                                                    <label for="radio3" class="form-check-label float-end mt-2">
 
                                                         <span>
-                                                            d-local go
-                                                            <img src="/views/assets/img/d-local-go.jpg"
-                                                                class="img-fluid" style="width:200px">
+                                                            Transferencia / Depósito
+                                                            <img src="/views/assets/img/transferencia.png"
+                                                                class="img-fluid" style="width:180px">
                                                         </span>
 
                                                     </label>
 
                                                 </div>
-
                                             </div>
-
                                         </div>
+
 
                                     </div>
 
@@ -279,7 +277,8 @@ MAIN
                                             <figure class="text-center"><small>Usarás</small> <img
                                                     src="/views/assets/img/paypal.png" style="width:80px;">
                                                 <br><small>Todas
-                                                    las transacciones son seguras y están encriptadas.</small></figure>
+                                                    las transacciones son seguras y están encriptadas.</small>
+                                            </figure>
 
                                         </div>
 
@@ -302,55 +301,94 @@ MAIN
 
                                     </div>
 
-                                    <div class="card cardPaid rounded" id="paidDlocal" style="display: none;">
-
-                                        <div class="card-header mb-0 pb-0">
-
-                                            <figure class="text-center"><small>Usarás</small> <img
-                                                    src="/views/assets/img/d-local-go.png" style="width:80px;">
-                                                <br><small>Todas las transacciones son seguras y están
-                                                    encriptadas.</small>
+                                    <div class="card cardPaid rounded" id="paidBank"
+                                        style="display: none; background-color: #FFFFFF;">
+                                        <div class="card-header mb-0 pb-0 text-center">
+                                            <figure class="text-center">
+                                                <img src="/views/assets/img/transferencia.png" style="width:80px;">
+                                                <br>
+                                                <small>Pago mediante transferencia o depósito bancario</small>
                                             </figure>
-
                                         </div>
 
                                         <div class="card-body pb-0">
-
-                                            <div class="px-3">
-
-                                                <div class="small">
-
-                                                    <div class="d-flex justify-content-around mb-3">
-                                                        <div class="py-2 px-3 mx-2 rounded border"
-                                                            style="border:2px solid #000 !important"><i
-                                                                class="bi bi-credit-card"></i><br> Tarjeta de crédito
-                                                        </div>
-                                                        <div class="py-2 px-3 mx-2 rounded border"
-                                                            style="border:2px solid #000 !important"><i
-                                                                class="bi bi-credit-card-2-back"></i><br> Tarjeta de
-                                                            débito
-                                                        </div>
-                                                        <div class="py-2 px-3 mx-2 rounded border"
-                                                            style="border:2px solid #000 !important"><i
-                                                                class="bi bi-bank"></i><br> Transferencia bancaria</div>
-                                                    </div>
-
-
-                                                    <div class="p-2 text-center mb-2">
-                                                        <small class="small">Luego de hacer clic en “Comprar ahora”,
-                                                            serás
-                                                            redirigido a Tarjetas locales, Transferencias y Efectivo
-                                                            para
-                                                            completar tu compra de forma segura.</small>
+                                            <!-- Grid of Bank Logos -->
+                                            <div class="row px-2 justify-content-around mb-4">
+                                                <!-- BANCO PICHINCHA -->
+                                                <div class="col-md-6 col-sm-6 mb-3">
+                                                    <div class="bank-option border rounded p-3  text-center cursor-pointer"
+                                                        data-bank="BANCO PICHINCHA" data-type="Cuenta Corriente"
+                                                        data-number="2100247823">
+                                                        <img src="/views/assets/img/pichincha_logo.png"
+                                                            alt="Banco Pichincha" style="height: 28px;">
                                                     </div>
                                                 </div>
 
+                                                <!-- PRODUBANCO -->
+                                                <div class="col-md-6 col-sm-6 mb-3">
+                                                    <div class="bank-option border rounded p-3  text-center cursor-pointer"
+                                                        data-bank="Produbanco" data-type="Cuenta Ahorro"
+                                                        data-number="12183000841">
+                                                        <img src="/views/assets/img/produbanco_logo.webp"
+                                                            alt="Produbanco" style="height: 28px;">
+                                                    </div>
+                                                </div>
+
+                                                <!-- PACÍFICO -->
+                                                <div class="col-md-6 col-sm-6 mb-3">
+                                                    <div class="bank-option border rounded p-1  text-center cursor-pointer"
+                                                        data-bank="Banco del Pacífico" data-type="Cuenta Ahorro"
+                                                        data-number="1053097335">
+                                                        <img src="/views/assets/img/pacifico_logo.png"
+                                                            alt="Banco del Pacífico" style="height: 52px;">
+                                                    </div>
+                                                </div>
+
+                                                <!-- GUAYAQUIL -->
+                                                <div class="col-md-6 col-sm-6 mb-3">
+                                                    <div class="bank-option border rounded p-3  text-center cursor-pointer"
+                                                        data-bank="Banco Guayaquil" data-type="Cuenta Corriente"
+                                                        data-number="0012439045">
+                                                        <img src="/views/assets/img/guayaquil_logo.png"
+                                                            alt="Banco Guayaquil" style="height: 28px;">
+                                                    </div>
+                                                </div>
                                             </div>
 
+                                            <div id="bankDetails" class="p-3 rounded border mb-3"
+                                                style="display: none; background-color: #ffffff !important; color: #111111 !important; font-weight: 500 !important;">
+
+                                                <p class="mb-2 text-uppercase"
+                                                    style="color: #111111 !important; font-weight: bold !important;">
+                                                    <span id="bankName"></span>
+                                                </p>
+
+                                                <p class="mb-1" style="color: #111111 !important;">
+                                                    💳 <span id="accountType"></span> –
+                                                    <span id="accountNumber"
+                                                        style="font-weight: bold !important;"></span>
+                                                </p>
+
+                                                <p class="mb-1" style="color: #111111 !important;">
+                                                    🪪 Número de cédula: <strong
+                                                        style="color: #111111 !important;">1721855912</strong>
+                                                </p>
+
+                                                <p class="mb-0" style="color: #111111 !important;">
+                                                    📧 Correo: <strong
+                                                        style="color: #111111 !important;">ventas@proyectoecuador.com</strong>
+                                                </p>
+                                            </div>
+
+                                            <!-- Pasos para wp -->
+                                            <div class="p-2 text-center mb-2">
+                                                <small class="small"> Luego de hacer clic en “Comprar ahora”, se abrirá
+                                                    WhatsApp para que envíes tu comprobante de pago y así procesar tu
+                                                    solicitud.
+                                                </small>
+                                            </div>
                                         </div>
-
                                     </div>
-
 
                                 </div>
 
@@ -431,6 +469,23 @@ MAIN
                     });
                 }
             }
+        });
+
+        document.querySelectorAll('.bank-option').forEach(el => {
+            el.addEventListener('click', () => {
+                const bankName = el.dataset.bank;
+                const accountType = el.dataset.type;
+                const accountNumber = el.dataset.number;
+
+                document.getElementById('bankDetails').style.display = 'block';
+                document.getElementById('bankName').textContent = bankName;
+                document.getElementById('accountType').textContent = accountType;
+                document.getElementById('accountNumber').textContent = accountNumber;
+
+                // Opcional: marcar visualmente el banco activo
+                document.querySelectorAll('.bank-option').forEach(b => b.classList.remove('border-success'));
+                el.classList.add('border-success');
+            });
         });
     </script>
 

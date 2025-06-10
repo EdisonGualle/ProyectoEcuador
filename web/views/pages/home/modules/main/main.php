@@ -41,78 +41,50 @@ MAIN
 
         <div class="container mt-3 pb-5 mt-lg-0 px-3 px-lg-5 position-relative">
 
-            <!-- MODULO DE AVANCE -->
-            <div class="row mb-4">
-                <div class="col-12 col-md-10 offset-md-1">
-                    <h2 class="text-uppercase text-center josefin-sans-700 mb-3">
-                        Avance de la Rifa
-                    </h2>
-
-                    <div class="progress rounded-pill" style="height: 30px;">
-                        <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" role="progressbar"
-                            style="width: <?= number_format($avance, 2) ?>%;"
-                            aria-valuenow="<?= number_format($avance, 2) ?>" aria-valuemin="0" aria-valuemax="100">
-                            <?= number_format($avance, 2) ?>%
-                        </div>
-                    </div>
-
-                    <p class="text-center mt-2 mb-0 josefin-sans-700 h6">
-                        Se han vendido <?= $totalSales ?> de <?= $diff ?> números
-                    </p>
-
-                    <?php if ($end <= $start): ?>
-                        <p class="text-danger text-center mt-2">
-                            ⚠️ Error: el rango de números (mínimo y máximo) está mal configurado.
-                        </p>
-                    <?php endif; ?>
-                </div>
-            </div>
             <!-- FIN MODULO DE AVANCE -->
 
             <div class="row">
                 <div class="offset-lg-1 col-lg-10">
 
                     <div class="row">
-                        <div class="col-12 col-lg-6 mt-5 mt-lg-0">
-                            <h5 class="text-uppercase josefin-sans-700 t1">Necesita saber acerca de</h5>
-                            <h1 class="text-uppercase josefin-sans-700 display-4">Cómo Jugar</h1>
-                            <p class="h5 josefin-sans-700">¡Sigue estos 3 sencillos pasos!</p>
-                        </div>
-
-                        <div class="col-12 col-lg-2 mb-2 mb-lg-0">
-                            <div class="card colorImage"
-                                style="background:url('/views/assets/img/card-bg-1.jpg'); background-size: cover; background-position: center center;">
-                                <div class="card-body text-center">
-                                    <figure class="rounded-circle c1 mx-auto">
-                                        <img src="/views/assets/img/1.png" class="img-fluid">
-                                    </figure>
-                                    <p class="h5 josefin-sans-700">1.ELIGE<br><small>Tu número ganador</small></p>
-                                </div>
+                        <div class="row justify-content-center text-center mb-5">
+                            <div class="col-12 col-lg-8">
+                                <h5 class="text-uppercase josefin-sans-700 t1">Necesita saber acerca de</h5>
+                                <h1 class="text-uppercase josefin-sans-700 display-4">Cómo Jugar</h1>
+                                <p class="h5 josefin-sans-700">¡Sigue estos 3 sencillos pasos!</p>
                             </div>
                         </div>
+                        <div class="row justify-content-center gy-4">
+                            <?php
+                            $url = "howtoplaysections?orderBy=step_howtoplaysection&orderMode=ASC";
+                            $method = "GET";
+                            $fields = array();
+                            $howToPlay = CurlController::request($url, $method, $fields);
 
-                        <div class="col-12 col-lg-2 mb-2 mb-lg-0">
-                            <div class="card colorImage"
-                                style="background:url('/views/assets/img/card-bg-2.jpg'); background-size: cover; background-position: center center;">
-                                <div class="card-body text-center">
-                                    <figure class="rounded-circle c1 mx-auto">
-                                        <img src="/views/assets/img/2.png" class="img-fluid">
-                                    </figure>
-                                    <p class="h5 josefin-sans-700">2.COMPRA<br><small>Completando los datos</small></p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-12 col-lg-2 mb-2 mb-lg-0">
-                            <div class="card colorImage"
-                                style="background:url('/views/assets/img/card-bg-3.jpg'); background-size: cover; background-position: center center;">
-                                <div class="card-body text-center">
-                                    <figure class="rounded-circle c1 mx-auto">
-                                        <img src="/views/assets/img/3.png" class="img-fluid">
-                                    </figure>
-                                    <p class="h5 josefin-sans-700">3.GANA<br><small>Ya casi estás ahí</small></p>
-                                </div>
-                            </div>
+                            if ($howToPlay->status == 200):
+                                foreach ($howToPlay->results as $index => $item):
+                                    $background = "/views/assets/img/card-bg-" . ($index + 1) . ".jpg";
+                                    $icon = "/views/assets/img/" . ($index + 1) . ".png";
+                                    ?>
+                                    <div class="col-12 col-md-4">
+                                        <div class="card colorImage h-100 border-0 shadow-sm"
+                                            style="background:url('<?php echo $background ?>'); background-size: cover; background-position: center center;">
+                                            <div class="card-body text-center text-white px-3">
+                                                <figure class="rounded-circle c1 mx-auto mb-3">
+                                                    <img src="<?php echo $icon ?>" class="img-fluid">
+                                                </figure>
+                                                <p class="h5 josefin-sans-700 mb-2">
+                                                    <?php echo $item->step_howtoplaysection . '.' . strtoupper($item->title_howtoplaysection); ?>
+                                                </p>
+                                                <p class="small josefin-sans-700"><?php echo $item->description_howtoplaysection; ?>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <?php
+                                endforeach;
+                            endif;
+                            ?>
                         </div>
                     </div>
 

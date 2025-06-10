@@ -1,61 +1,49 @@
-<?php if ($raffle->win_raffle > 0 && $raffle->number_win_raffle > 0): ?>
+<?php
+// Valor estático del avance de la rifa (50%)
+$percent = 59;
 
-    <div class="text-center position-relative">
-        
-         <div class="display-1 josefin-sans-700">¡Feliz Ganador!</div>
+// Colores definidos desde base de datos
+$colorText   = urldecode($template->color0_template); // color del texto y bordes
+$colorHover  = urldecode($template->color4_template); // color hover para botones (no se usa aquí)
+$colorCard   = urldecode($template->color3_template); // fondo de la card (tampoco se usa)
+$colorBarra2 = 'black'; // color personalizado de la barra de progreso (no usado si usamos Bootstrap color)
+?>
 
-         <?php 
+<!-- Contenedor principal centrado -->
+<div class="container d-flex justify-content-center py-5">
+    <div class="col-12 col-md-10 col-lg-9">
 
-        $url = "clients?linkTo=id_client&equalTo=".$raffle->win_raffle;
-        $winClient = CurlController::request($url,$method,$fields)->results[0];
+        <!-- Tarjeta con fondo transparente -->
+        <div class="card p-5 rounded-4 text-center"
+             style="background: transparent; border: none;">
 
-        ?>
+            <!-- Título del avance -->
+            <h3 class="mb-4 text-uppercase fw-bold"
+                style="letter-spacing: 0.5px; color: <?php echo $colorText ?>;">
+                Avance del Sorteo
+            </h3>
 
-        <div class="text-center position-relative">
-            
-            <div class="d-flex flex-wrap w-100 justify-content-center p-2 rounded">
-                 
-                <div class="h1 mt-3 pe-2"><?php echo $winClient->name_client." ".$winClient->surname_client ?> con el número </div>
-
-                <div class="h3 text-center numbers rounded-circle m-1"><span class="p-2"><?php echo $raffle->number_win_raffle ?></span></div>  
-                  
+            <!-- Barra de progreso estática al 50% -->
+            <div class="progress mb-3 mx-auto"
+                 style="height: 30px; border-radius: 50px; overflow: hidden; width: 90%;">
+                <div class="progress-bar bg-success progress-bar-striped progress-bar-animated text-white fw-bold"
+                     role="progressbar"
+                     style="width: <?php echo $percent; ?>%;"
+                     aria-valuenow="<?php echo $percent; ?>" aria-valuemin="0" aria-valuemax="100">
+                    <?php echo $percent ?>%
+                </div>
             </div>
 
-            <p class="my-2 lead">¡Gracias por participar, nos vemos en el próximo sorteo!</p>
+            <!-- Texto descriptivo desde la base de datos (si existe) -->
+            <?php if (!empty($raffle->description_targetprogress_raffle)): ?>
+                <p class="mt-4 mb-0 px-2"
+                   style="font-size: 1rem; color: <?php echo $colorText ?>;">
+                    <?php echo urldecode($raffle->description_targetprogress_raffle); ?>
+                </p>
+            <?php endif; ?>
 
         </div>
 
     </div>
-
-<?php else: ?>
-
-    <div class="text-center position-relative">
-
-        <div class="countdown">
-
-            <?php if ($raffle->end_date_raffle > date("Y-m-d H:m:s")): ?>
-                <h3>Este sorteo juega en</h3>  
-            <?php endif ?>
-           
-
-            <div class="timer display-1 josefin-sans-700" id="timer" time="<?php echo explode(" ",urldecode($raffle->end_date_raffle))[0] ?>">00:00:00</div>
-
-            <?php if ($raffle->end_date_raffle <= date("Y-m-d H:m:s")): ?>
-
-                <div class="container mb-3">
-                    <div class="ratio ratio-16x9">
-                      <iframe class="rounded" src="<?php echo $raffle->video_live_raffle ?>"></iframe>
-                    </div>
-                </div>
-                            
-            <?php endif ?>
-
-
-            <p><?php echo urldecode($raffle->location_raffle) ?><br>Sorteo <?php echo TemplateController::formatDate(4, urldecode($raffle->end_date_raffle)) ?></p>
-
-        </div>
-
-    </div>
-
-<?php endif ?>
+</div>
 

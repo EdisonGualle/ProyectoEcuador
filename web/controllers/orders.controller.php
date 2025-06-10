@@ -141,8 +141,6 @@ class OrdersController
       }
 
 
-
-
       // Redirigir a PayPal
       if ($_POST["optradio"] == "paypal") {
         $urlReturn = $_SERVER["REQUEST_SCHEME"] . "://" . $_SERVER["SERVER_NAME"];

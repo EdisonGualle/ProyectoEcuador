@@ -1,6 +1,8 @@
-<!--=================================
-HERO
-==================================-->
+<?php
+$url = "galleries?linkTo=id_product_gallery&equalTo=" . $raffle->id_product;
+$galleries = CurlController::request($url, $method, $fields);
+$galleries = ($galleries->status == 200) ? array_slice($galleries->results, 0, 4) : [];
+?>
 
 <div class="container-fluid p-0 position-relative" id="hero">
 
@@ -18,7 +20,7 @@ HERO
 
                     <h4 class="text-uppercase josefin-sans-700 t1">Ahora tienes la oportunidad</h4>
                     <h1 class="text-uppercase josefin-sans-700 display-2"><?php echo urldecode($raffle->text_raffle) ?></h1>
-                    <p class="h5 josefin-sans-700">¿Serás tú nuestro próximo afortunado ganador?</p>
+                    <p class="h5 josefin-sans-700">¿Serás tú, nuestro próximo afortunado ganador?</p>
 
                     <div class="btn-group py-4">
                         <a href="#main" class="btn btn-default btn-lg rounded pt-3 text-uppercase b1 border-0">Participa Ahora</a>
@@ -51,6 +53,6 @@ HERO
 
         ?>
 
-    </div>
+    </div>
 
 </div>
