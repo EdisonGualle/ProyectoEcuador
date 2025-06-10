@@ -32,65 +32,72 @@ if (isset($_GET["ref"])) {
 				}
 
 				$status = "PAID";
+
 			}
 
 			if (isset($status) && $status === "PAID") {
 
-				$numbers = explode(",", $order->numbers_order);
-				$totalSales = 0;
+				if ($order->type_number_raffle === "dinamico") {
 
-				// Verificar disponibilidad de cada número
-				foreach ($numbers as $number) {
-					$checkUrl = "sales?linkTo=number_sale,id_raffle_sale&equalTo={$number},{$order->id_raffle}";
-					$check = CurlController::request($checkUrl, "GET", []);
-					if ($check->status == 200) {
-						echo "<div class='alert alert-danger text-center'>❌ El número <strong>{$number}</strong> ya fue tomado por otro usuario. No se puede completar la orden. Contacta con soporte.</div>";
+					$payload = [
+						"id_raffle" => $order->id_raffle,
+						"id_client" => $order->id_client,
+						"id_order" => $order->id_order,
+						"status_sale" => "PAID"
+					];
+
+					$generate = CurlController::request("sales?random=sales", "POST", $payload);
+
+					if ($generate->status != 200 || empty($generate->numbers)) {
+						echo '<div class="alert alert-danger text-center">❌ Error al generar los números aleatorios. Contacta con soporte.</div>';
 						return;
 					}
-				}
 
-				// Crear las ventas
-				foreach ($numbers as $number) {
-					$url = "sales?token=no&except=id_sale";
-					$method = "POST";
-					$fields = array(
-						"id_raffle_sale" => $order->id_raffle,
-						"id_client_sale" => $order->id_client,
-						"id_order_sale" => $order->id_order,
-						"number_sale" => $number,
-						"status_sale" => "PAID",
-						"date_created_sale" => date("Y-m-d")
-					);
+					$numbers = $generate->numbers;
 
-					$createSale = CurlController::request($url, $method, $fields);
+				} else {
+					// Obtener números del pedido
+					$numbers = explode(",", $order->numbers_order);
 
-					if ($createSale->status == 200) {
-						$totalSales++;
-					} else {
-						echo '<div class="alert alert-danger text-center">❌ Error al registrar el número ' . $number . '. Contacta con soporte.</div>';
-						return;
+					// Actualizar ventas de estático a PAID
+					foreach ($numbers as $number) {
+						$urlSale = "sales?linkTo=number_sale,id_raffle_sale&equalTo=" . $number . "," . $order->id_raffle;
+						$res = CurlController::request($urlSale, "GET", []);
+
+						if ($res->status == 200 && count($res->results) > 0) {
+							$saleId = $res->results[0]->id_sale;
+
+							$updateFields = http_build_query([
+								"status_sale" => "PAID",
+								"date_updated_sale" => date("Y-m-d H:i:s")
+							]);
+
+							$urlUpdate = "sales?id=$saleId&nameId=id_sale&token=no&except=id_sale";
+							$updateRes = CurlController::request($urlUpdate, "PUT", $updateFields);
+						}
 					}
+
 				}
 
-				// Actualizar estado de la orden
+
+				// Cambiar estado de orden a PAID
 				$url = "orders?id=" . $order->id_order . "&nameId=id_order&token=no&except=id_order";
-				$method = "PUT";
 				$fields = http_build_query(["status_order" => $status]);
-				CurlController::request($url, $method, $fields);
+				CurlController::request($url, "PUT", $fields);
 
-				// Enviar correo al cliente
+				// Enviar correo
 				$subjectClient = "🎉 ¡Gracias por tu compra " . TemplateController::capitalize($order->name_client) . "!";
 				$emailClient = trim($order->email_client);
 				$titleClient = "[ProyectoEcuador] Pedido # " . $order->ref_order;
 
 				$messageClient = "
-				<p>Hola <strong>" . TemplateController::capitalize($order->name_client) . " " . TemplateController::capitalize($order->surname_client) . "</strong>,</p>
-				<p>Gracias por participar en nuestro sorteo 🎊</p>
-				<p><strong>Estos son tus números:</strong></p>
-				<h1 style='margin: 10px 0;'>" . $order->numbers_order . "</h1>
-				<p>📢 <strong>¡ATENCIÓN!</strong></p>
-				<p>Únete al grupo de WhatsApp para recibir actualizaciones y noticias del sorteo</p>
-				<p style='margin-top: 20px;'>🍀 ¡Te deseamos mucha suerte!</p>";
+        <p>Hola <strong>" . TemplateController::capitalize($order->name_client) . " " . TemplateController::capitalize($order->surname_client) . "</strong>,</p>
+        <p>Gracias por participar en nuestro sorteo 🎊</p>
+        <p><strong>Estos son tus números:</strong></p>
+        <h1 style='margin: 10px 0;'>" . implode(",", $numbers) . "</h1>
+        <p>📢 <strong>¡ATENCIÓN!</strong></p>
+        <p>Únete al grupo de WhatsApp para recibir actualizaciones y noticias del sorteo</p>
+        <p style='margin-top: 20px;'>🍀 ¡Te deseamos mucha suerte!</p>";
 
 				$urlReturn = $_SERVER["REQUEST_SCHEME"] . "://" . $_SERVER["SERVER_NAME"];
 				$linkPedido = $urlReturn . "/thanks?ref=" . $order->ref_order;
@@ -104,8 +111,11 @@ if (isset($_GET["ref"])) {
 					echo '<div class="col-12 mx-1 mb-3 text-center alert alert-warning">⚠️ Su pago fue exitoso, pero hubo un problema al enviar el correo</div>';
 				}
 			}
+
+
 		} else {
 			$status = "PAID";
+			$numbers = explode(",", $order->numbers_order);
 		}
 
 		include "modules/hero/hero.php";

@@ -10,24 +10,47 @@ if (isset($_GET["random"]) && $_GET["random"] == "sales") {
     if (
         isset($_POST["id_raffle"]) &&
         isset($_POST["id_client"]) &&
-        isset($_POST["id_order"]) &&
-        isset($_POST["qty"])
+        isset($_POST["id_order"])
     ) {
+        // Buscar la orden para obtener numbers_order
+        $order = GetModel::getDataFilter("orders", "*", "id_order", $_POST["id_order"], null, null, null, null);
+        if (empty($order)) {
+            echo json_encode([
+                "status" => 404,
+                "msg" => "Orden no encontrada."
+            ]);
+            return;
+        }
+
+        $order = $order[0];
+        $qty = intval($order->numbers_order);
+
+        if ($qty <= 0) {
+            echo json_encode([
+                "status" => 400,
+                "msg" => "La cantidad de números en la orden es inválida."
+            ]);
+            return;
+        }
+
         RandomController::generateRandomSales(
             $_POST["id_raffle"],
             $_POST["id_client"],
             $_POST["id_order"],
-            $_POST["qty"]
+            $qty
         );
         return;
+
     } else {
         echo json_encode([
             "status" => 400,
-            "msg" => "Faltan parámetros: id_raffle, id_client, id_order, qty"
+            "msg" => "Faltan parámetros: id_raffle, id_client, id_order"
         ]);
         return;
     }
 }
+
+
 if(isset($_POST)){
 
 	/*=============================================

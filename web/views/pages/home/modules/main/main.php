@@ -4,7 +4,7 @@ $totalSales = 0;
 $method = "GET";
 $fields = [];
 
-$url = "sales?linkTo=id_raffle_sale&equalTo=" . $raffle->id_raffle . "&select=number_sale";
+$url = "sales?linkTo=id_raffle_sale,status_sale&equalTo=" . $raffle->id_raffle . ",PAID&select=number_sale";
 $response = CurlController::request($url, $method, $fields);
 
 if ($response->status == 200) {
@@ -141,7 +141,7 @@ MAIN
 
                                 <!-- Campo cantidad -->
                                 <div class="form-group mb-4">
-                                    <input type="number" name="amount" min="1" max="<?= $diff - $totalSales ?>"
+                                    <input type="number" name="numbers" min="1" max="<?= $diff - $totalSales ?>"
                                         class="form-control form-control-lg text-center py-3 rounded" style="font-size: 1.3rem;"
                                         placeholder="Ej: 3" required>
                                     <div class="invalid-feedback">Por favor ingresa un número válido entre 1 y

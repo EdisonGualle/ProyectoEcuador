@@ -1,4 +1,3 @@
-
 <?php
 
 class OrdersController
@@ -10,15 +9,11 @@ class OrdersController
       echo '<div class="col-12 mx-1 mb-3 text-center alert alert-warning"><div class="spinner-border spinner-border-sm"></div> Procesando su pedido, será redirigido a nuestra pasarela de pagos...</div>';
 
       // Traemos el sorteo
-      $url = "raffles?linkTo=id_raffle,status_raffle&equalTo=" . $_POST["raffle"] . ",1&select=id_raffle,price_raffle,group_ws_raffle,email_raffle";
+      $url = "raffles?linkTo=id_raffle,status_raffle&equalTo=" . $_POST["raffle"] . ",1&select=id_raffle,price_raffle,group_ws_raffle,email_raffle,type_number_raffle";
       $method = "GET";
       $fields = array();
       $raffle = CurlController::request($url, $method, $fields);
 
-      echo "<pre>Respuesta del sorteo:
-";
-      print_r($raffle);
-      echo "</pre>";
 
       if ($raffle->status == 200) {
         $raffle = $raffle->results[0];
@@ -28,18 +23,29 @@ class OrdersController
       }
 
       // Capturar el precio y total
+      $isDynamic = is_numeric($_POST["numbers"]);
       $numbers = explode(",", $_POST["numbers"]);
-      $total = count($numbers) * $raffle->price_raffle;
+      $total = ($isDynamic ? intval($_POST["numbers"]) : count($numbers)) * $raffle->price_raffle;
 
-      // Validar que los números no estén vendidos
-      foreach ($numbers as $value) {
-        $url = "sales?linkTo=number_sale,id_raffle_sale&equalTo=" . $value . "," . $_POST["raffle"];
-        $getNumber = CurlController::request($url, "GET", []);
-        if ($getNumber->status == 200) {
-          echo '<div class="col-12 mx-1 mb-3 text-center alert alert-danger">ERROR: "El número ' . $value . ' ya está adquirido por otra persona, elige otro número"</div>';
-          return;
+      if (!$isDynamic) {
+        foreach ($numbers as $value) {
+          $url = "sales?linkTo=number_sale,id_raffle_sale&equalTo=" . $value . "," . $_POST["raffle"];
+          $getNumber = CurlController::request($url, "GET", []);
+
+          if ($getNumber->status == 200 && count($getNumber->results) > 0) {
+            $estado = strtoupper($getNumber->results[0]->status_sale ?? '');
+
+            // ❌ Si ya fue pagado, rechazar
+            if ($estado === 'PAID') {
+              echo '<div class="col-12 mx-1 mb-3 text-center alert alert-danger">ERROR: "El número ' . $value . ' ya está pagado por otra persona, elige otro número"</div>';
+              return;
+            }
+
+          }
         }
       }
+
+
 
       // Verificar si cliente ya existe
       $url = "clients?linkTo=email_client&equalTo=" . trim($_POST["email"]);
@@ -59,10 +65,6 @@ class OrdersController
         );
         $createClient = CurlController::request($url, "POST", $fields);
 
-        echo "<pre>Cliente creado:
-";
-        print_r($createClient);
-        echo "</pre>";
 
         if ($createClient->status != 200) {
           echo '<div class="col-12 mx-1 mb-3 text-center alert alert-danger">ERROR: No se pudo crear el cliente</div>';
@@ -87,15 +89,59 @@ class OrdersController
       );
       $createOrder = CurlController::request($url, "POST", $fields);
 
-      echo "<pre>Orden creada:
-";
-      print_r($createOrder);
-      echo "</pre>";
-
       if ($createOrder->status != 200) {
         echo '<div class="col-12 mx-1 mb-3 text-center alert alert-danger">ERROR: No se pudo crear la orden</div>';
         return;
       }
+
+
+      if ($raffle->type_number_raffle === "estatico") {
+        $ventasFallidas = [];
+        $errores = [];
+
+        foreach ($numbers as $number) {
+
+          // Validar si el número ya fue pagado (estado PAID)
+          $url = "sales?linkTo=number_sale,id_raffle_sale&equalTo=" . $number . "," . $raffle->id_raffle;
+          $verifica = CurlController::request($url, "GET", []);
+
+          if ($verifica->status == 200 && count($verifica->results) > 0) {
+            $estado = strtoupper($verifica->results[0]->status_sale ?? '');
+
+            // Si ya fue pagado, bloquear
+            if ($estado === 'PAID') {
+              $errores[] = "N° $number → ya fue comprado por otra persona";
+              continue;
+            }
+
+            // Si ya existe en PENDING, dejarlo pasar (es válido)
+          }
+
+          // Crear la venta
+          $fields = [
+            "id_raffle_sale" => $raffle->id_raffle,
+            "id_client_sale" => $clientId,
+            "id_order_sale" => $createOrder->results->lastId,
+            "number_sale" => $number,
+            "status_sale" => "PENDING",
+            "date_created_sale" => date("Y-m-d")
+          ];
+
+          $venta = CurlController::request("sales?token=no&except=id_sale", "POST", $fields);
+
+          if (!$venta || !isset($venta->status) || $venta->status != 200) {
+            $errores[] = "N° $number → " . ($venta->results ?? 'error desconocido');
+          }
+        }
+
+        if (count($errores) > 0) {
+          echo '<div class="alert alert-danger">❌ Error al crear ventas para los siguientes números:<br>' . implode("<br>", $errores) . '</div>';
+          return;
+        }
+      }
+
+
+
 
       // Redirigir a PayPal
       if ($_POST["optradio"] == "paypal") {
