@@ -37,7 +37,7 @@
 				<!-- Modal footer -->
 				<div class="modal-footer d-flex justify-content-between">
 					<div><button type="button" class="btn btn-dark rounded" data-bs-dismiss="modal">Cerrar</button></div>
-					<div><button type="button" class="btn btn-default backColor rounded changeBooleans">Guardar</button></div> 
+					<div><button type="button" class="btn btn-dark backColor rounded changeBooleans">Guardar</button></div> 
 				</div>
 
 			</form>

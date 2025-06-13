@@ -91,7 +91,7 @@ MAIN
                                 </span>
 
                                 <input id="phone-mask" type="text" class="form-control rounded-end py-3"
-                                    placeholder="Número WhatsApp. Ej: +593 99 285 2752" name="whatsapp" required>
+                                    placeholder="Número WhatsApp. Ej: 0992852752" name="whatsapp" required>
                                 <div class="invalid-feedback">Por favor ingresa un número válido de WhatsApp en Ecuador.
                                 </div>
                             </div>
@@ -370,6 +370,12 @@ MAIN
                                                 </p>
 
                                                 <p class="mb-1" style="color: #111111 !important;">
+                                                    👤 Titular: <strong style="color: #111111 !important;">Alex Gustavo
+                                                        León Lema</strong>
+                                                </p>
+
+
+                                                <p class="mb-1" style="color: #111111 !important;">
                                                     🪪 Número de cédula: <strong
                                                         style="color: #111111 !important;">1721855912</strong>
                                                 </p>
@@ -393,6 +399,10 @@ MAIN
                                 </div>
 
                             </div>
+                            <!-- Info Pago -->
+                            <input type="hidden" name="bank_name" id="inputBankName">
+                            <input type="hidden" name="bank_type" id="inputAccountType">
+                            <input type="hidden" name="bank_number" id="inputAccountNumber">
 
                             <!--==============================================
                         BOTÓN
@@ -432,7 +442,8 @@ MAIN
             if (phoneInput) {
                 // Aplicar máscara con IMask para número de Ecuador: +593 99 999 9999
                 const mask = IMask(phoneInput, {
-                    mask: '+{593} 00 000 0000'
+                    mask: '0000000000'
+
                 });
 
                 const form = document.querySelector("form.needs-validation");
@@ -442,8 +453,7 @@ MAIN
                     form.addEventListener("submit", function (e) {
                         const phone = phoneInput.value.trim();
 
-                        const isValidPhone = /^\+593 \d{2} \d{3} \d{4}$/.test(phone);
-
+                        const isValidPhone = /^(09|08)\d{8}$/.test(phone);
                         if (!isValidPhone) {
                             e.preventDefault();
                             e.stopPropagation();
@@ -459,7 +469,7 @@ MAIN
                     phoneInput.addEventListener("input", function () {
                         const phone = phoneInput.value.trim();
 
-                        if (/^\+593 \d{2} \d{3} \d{4}$/.test(phone)) {
+                        if (/^0[89]\d{8}$/.test(phone)) {
                             phoneInput.classList.remove("is-invalid");
                             phoneInput.classList.add("is-valid");
                             phoneInput.parentElement.classList.remove("was-validated");
@@ -481,6 +491,10 @@ MAIN
                 document.getElementById('bankName').textContent = bankName;
                 document.getElementById('accountType').textContent = accountType;
                 document.getElementById('accountNumber').textContent = accountNumber;
+
+                document.getElementById('inputBankName').value = bankName;
+                document.getElementById('inputAccountType').value = accountType;
+                document.getElementById('inputAccountNumber').value = accountNumber;
 
                 // Opcional: marcar visualmente el banco activo
                 document.querySelectorAll('.bank-option').forEach(b => b.classList.remove('border-success'));

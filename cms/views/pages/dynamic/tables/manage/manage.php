@@ -145,3 +145,39 @@ $block2 = count($module->columns) - $block1;
 	</form>
 
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+	const form = document.querySelector("form");
+	const statusSelect = document.querySelector("[name='status_order']");
+	if (!form || !statusSelect) return;
+
+	let originalStatus = statusSelect.value;
+
+	form.addEventListener("submit", function (e) {
+		const newStatus = statusSelect.value;
+
+		// Solo lanzamos confirmación si pasa de otro estado a PAID
+		if (originalStatus !== "PAID" && newStatus === "PAID") {
+			e.preventDefault();
+
+			Swal.fire({
+				title: "¿Estás seguro?",
+				text: "Al marcar como PAID se generarán los números y se enviará un correo al cliente.",
+				icon: "warning",
+				showCancelButton: true,
+				confirmButtonColor: "#3085d6",
+				cancelButtonColor: "#d33",
+				confirmButtonText: "Sí, continuar",
+				cancelButtonText: "Cancelar"
+			}).then((result) => {
+				if (result.isConfirmed) {
+					form.submit(); // Confirmado → enviamos el formulario
+				} else {
+					statusSelect.value = originalStatus; // Revertimos el cambio
+				}
+			});
+		}
+	});
+});
+</script>

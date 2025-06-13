@@ -10,8 +10,8 @@ class TemplateController
 {
 
 	/*=============================================
-					  Traemos la Vista Principal de la plantilla
-					  =============================================*/
+						 Traemos la Vista Principal de la plantilla
+						 =============================================*/
 
 	public function index()
 	{
@@ -21,8 +21,8 @@ class TemplateController
 	}
 
 	/*=============================================
-					  Función para dar formato a las fechas
-					  =============================================*/
+						 Función para dar formato a las fechas
+						 =============================================*/
 
 	static public function formatDate($type, $value)
 	{
@@ -71,8 +71,8 @@ class TemplateController
 	}
 
 	/*=============================================
-					  Función para mayúscula inicial
-					  =============================================*/
+						 Función para mayúscula inicial
+						 =============================================*/
 
 	static public function capitalize($value)
 	{
@@ -83,8 +83,8 @@ class TemplateController
 	}
 
 	/*=============================================
-					  Función para generar códigos numéricos aleatorios
-					  =============================================*/
+						 Función para generar códigos numéricos aleatorios
+						 =============================================*/
 
 	static public function genCodec($length)
 	{
@@ -124,42 +124,37 @@ class TemplateController
 			} else {
 				// Si hay dos links → mostrar ambos botones en una misma fila
 				$botones = '
-<table align="center" cellspacing="0" cellpadding="0" style="margin: 20px auto;">
-  <tr>
-    <td align="center" style="padding: 0 8px;">
-      <a href="' . $extraLink . '" target="_blank" style="text-decoration:none;">
-        <div style="background:#25D366; color:white; padding:12px 24px; border-radius:6px; font-weight:bold; display:inline-block;">
-          Unirme al grupo de WhatsApp
-        </div>
-      </a>
-    </td>
-    <td align="center" style="padding: 0 8px;">
-      <a href="' . $link . '" target="_blank" style="text-decoration:none;">
-        <div style="background:#000; color:white; padding:12px 24px; border-radius:6px; font-weight:bold; display:inline-block;">
-          Ver mi pedido
-        </div>
-      </a>
-    </td>
-  </tr>
-</table>';
-
-
+				<table align="center" cellspacing="0" cellpadding="0" style="margin: 20px auto;">
+				<tr>
+					<td align="center" style="padding: 0 8px;">
+					<a href="' . $extraLink . '" target="_blank" style="text-decoration:none;">
+						<div style="background:#25D366; color:white; padding:12px 24px; border-radius:6px; font-weight:bold; display:inline-block;">
+						Unirme al grupo de WhatsApp
+						</div>
+					</a>
+					</td>
+					<td align="center" style="padding: 0 8px;">
+					<a href="' . $link . '" target="_blank" style="text-decoration:none;">
+						<div style="background:#000; color:white; padding:12px 24px; border-radius:6px; font-weight:bold; display:inline-block;">
+						Ver mi pedido
+						</div>
+					</a>
+					</td>
+				</tr>
+				</table>';
 			}
 
-
-		$mail->msgHTML('
-	<div style="width:100%; background:#eee; font-family:sans-serif; padding:40px 0;">
-		<div style="margin:auto; width:600px; background:white; padding:20px; text-align:center;">
-			<h3 style="color:#999;">' . $title . '</h3>
-			<hr style="border:1px solid #ccc; width:80%">
-			<div style="font-size:15px; color:#333;">' . $message . '</div>
-			<div style="margin-top: 20px;">' . $botones . '</div>
-			<hr style="border:1px solid #ccc; width:80%">
-			<h5 style="color:#999; font-weight:100;">Si no solicitaste este correo, puedes ignorarlo.</h5>
-		</div>
-	</div>');
-
-
+			$mail->msgHTML('
+				<div style="width:100%; background:#eee; font-family:sans-serif; padding:40px 0;">
+					<div style="margin:auto; width:600px; background:white; padding:20px; text-align:center;">
+						<h3 style="color:#999;">' . $title . '</h3>
+						<hr style="border:1px solid #ccc; width:80%">
+						<div style="font-size:15px; color:#333;">' . $message . '</div>
+						<div style="margin-top: 20px;">' . $botones . '</div>
+						<hr style="border:1px solid #ccc; width:80%">
+						<h5 style="color:#999; font-weight:100;">Si no solicitaste este correo, puedes ignorarlo.</h5>
+					</div>
+				</div>');
 			$mail->send();
 			return "ok";
 

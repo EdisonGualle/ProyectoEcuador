@@ -9,7 +9,7 @@ class OrdersController
       echo '<div class="col-12 mx-1 mb-3 text-center alert alert-warning"><div class="spinner-border spinner-border-sm"></div> Procesando su pedido, será redirigido a nuestra pasarela de pagos...</div>';
 
       // Traemos el sorteo
-      $url = "raffles?linkTo=id_raffle,status_raffle&equalTo=" . $_POST["raffle"] . ",1&select=id_raffle,price_raffle,group_ws_raffle,email_raffle,type_number_raffle";
+      $url = "raffles?linkTo=id_raffle,status_raffle&equalTo=" . $_POST["raffle"] . ",1&select=id_raffle,price_raffle,group_ws_raffle,email_raffle,type_number_raffle,phone_raffle";
       $method = "GET";
       $fields = array();
       $raffle = CurlController::request($url, $method, $fields);
@@ -17,6 +17,22 @@ class OrdersController
 
       if ($raffle->status == 200) {
         $raffle = $raffle->results[0];
+        // Obtener número de WhatsApp desde el sorteo o usar uno por defecto
+        if (empty($raffle->phone_raffle)) {
+          echo '<div class="col-12 mx-1 mb-3 text-center alert alert-danger">ERROR: No se ha configurado el número de WhatsApp para esta rifa.</div>';
+          return;
+        }
+
+        $phoneCleaned = str_replace(' ', '', trim($raffle->phone_raffle));
+
+        if (!preg_match('/^0[89]\d{8}$/', $phoneCleaned)) {
+          echo '<div class="col-12 mx-1 mb-3 text-center alert alert-danger">ERROR: El número configurado para WhatsApp no es válido. Debe comenzar con 09 u 08 y tener 10 dígitos.</div>';
+          return;
+        }
+
+        $whatsappNumber = '+593' . substr($phoneCleaned, 1);
+
+
       } else {
         echo '<div class="col-12 mx-1 mb-3 text-center alert alert-danger">ERROR: El Sorteo no se encuentra disponible, comunicarse con Soporte</div>';
         return;
@@ -139,6 +155,49 @@ class OrdersController
           return;
         }
       }
+
+      // Si el método de pago es transferencia, redirigir a WhatsApp con mensaje
+      if ($_POST["optradio"] == "transferencia") {
+
+        $telefono = ltrim($whatsappNumber, '+');
+
+        if (!$telefono) {
+          echo '<div class="col-12 mx-1 mb-3 text-center alert alert-danger">ERROR: No se ha configurado el número de WhatsApp para este sorteo.</div>';
+          return;
+        }
+
+        $nombre = TemplateController::capitalize($_POST["name"]);
+        $apellido = TemplateController::capitalize($_POST["surname"]);
+        $cliente = $nombre . " " . $apellido;
+
+        $numerosTexto = $isDynamic ? "*Cantidad:* $total / Se generarán aleatorios" : "*Números solicitados:* " . $_POST["numbers"];
+        $banco = '';
+        if (!empty($_POST["bank_name"]) && !empty($_POST["bank_type"]) && !empty($_POST["bank_number"])) {
+          $banco = "*Banco:* " . $_POST["bank_name"] . " (" . $_POST["bank_type"] . " " . $_POST["bank_number"] . ")";
+        }
+
+        $mensaje = rawurlencode(
+          "Hola 👋, deseo participar en el sorteo y he reservado mis números.\n\n" .
+          "💵 Realizaré el pago mediante depósito o transferencia a la siguiente cuenta:\n\n" .
+          "{$banco}\n" .
+          "Titular: Alex Gustavo León Lema\n" .
+          "Cédula: 1721855912\n" .
+          "Correo: ventas@proyectoecuador.com\n\n" .
+          "📋 *Mis datos personales:*\n" .
+          "Nombre: $cliente\n" .
+          "Correo: " . $_POST["email"] . "\n" .
+          "WhatsApp: " . $_POST["whatsapp"] . "\n" .
+          "Referencia de la orden: $ref\n" .
+          "*Números solicitados:* " . ($isDynamic ? intval($_POST["numbers"]) : count($numbers)) . "\n" .
+          "*Total a pagar:* $" . number_format($total, 2) . "\n\n" .
+          "📎 Te enviaré el comprobante a continuación ✅"
+        );
+
+        $urlWhatsapp = "https://wa.me/" . $telefono . "?text=" . $mensaje;
+        echo "<script>window.location = '$urlWhatsapp';</script>";
+        return;
+      }
+
 
 
       // Redirigir a PayPal
