@@ -5,9 +5,6 @@ php_error_log
 # Dependencias de PHP
 /vendor/
 
-# Dependencias de Node
-/node_modules/
-
 # Archivos de composer
 composer.lock
 

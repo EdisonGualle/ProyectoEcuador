@@ -25,5 +25,5 @@ Thumbs.db
 /bootstrap/cache/*
 
 # Archivos de vendor de CMS
-/cms/extensions/vendor/
+extensions/vendor/
 
