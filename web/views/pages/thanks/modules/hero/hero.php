@@ -7,7 +7,7 @@ if (!isset($order)) {
 ?>
 
 <!--=================================
-HERO
+HERO de thanks
 ==================================-->
 
 <div class="container-fluid p-0" id="heroCheckout">

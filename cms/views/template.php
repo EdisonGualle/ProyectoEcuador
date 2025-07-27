@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 /*=============================================
 Iniciar variables de sesión
@@ -16,8 +16,8 @@ $routesArray = explode("/", $_SERVER["REQUEST_URI"]);
 array_shift($routesArray);
 
 foreach ($routesArray as $key => $value) {
-	
-	$routesArray[$key] = explode("?",$value)[0];
+
+	$routesArray[$key] = explode("?", $value)[0];
 }
 
 /*=============================================
@@ -28,16 +28,14 @@ $url = "admins";
 $method = "GET";
 $fields = array();
 
-$adminTable = CurlController::request($url,$method,$fields);
+$adminTable = CurlController::request($url, $method, $fields);
 
-if($adminTable->status == 404){
+if ($adminTable->status == 404) {
 
 	$admin = null;
-
-}else{
+} else {
 
 	$admin = $adminTable->results[0];
-	
 }
 
 // echo '<pre>$admin '; print_r($admin); echo '</pre>';
@@ -46,10 +44,11 @@ if($adminTable->status == 404){
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="icon" href="https://cdn-icons-png.flaticon.com/512/9966/9966194.png">
+	<link rel="icon" href="/views/assets/img/icon-proyectoecuador1.png">
 
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -81,35 +80,31 @@ if($adminTable->status == 404){
 		===============================================-->
 
 		<style>
-			
 			/*=============================================
 			Típografía del dashboard
 			=============================================*/
 
-			<?php if ($admin->font_admin != null):?>
-
-				body{
-					font-family: <?php echo str_replace("+"," ",explode("=",explode(":",explode("?",$admin->font_admin)[1])[0])[1]) ?>, sans-serif !important;	
-				}
+			<?php if ($admin->font_admin != null): ?>body {
+				font-family: <?php echo str_replace("+", " ", explode("=", explode(":", explode("?", $admin->font_admin)[1])[0])[1]) ?>, sans-serif !important;
+			}
 
 			<?php endif ?>
-
 			/*=============================================
 			Color del dashboard
 			=============================================*/
 
-			.backColor{
+			.backColor {
 				background: <?php echo $admin->color_admin ?> !important;
 				color: #FFF !important;
 				border: 0 !important;
 			}
 
-			.form-check-input:checked{
+			.form-check-input:checked {
 				background-color: <?php echo $admin->color_admin ?> !important;
-			    border-color: <?php echo $admin->color_admin ?> !important;
+				border-color: <?php echo $admin->color_admin ?> !important;
 			}
 
-			.textColor{
+			.textColor {
 				color: <?php echo $admin->color_admin ?> !important;
 			}
 
@@ -121,9 +116,8 @@ if($adminTable->status == 404){
 			}
 
 			.page-link {
-				color: <?php echo $admin->color_admin ?> !important;		
+				color: <?php echo $admin->color_admin ?> !important;
 			}
-
 		</style>
 
 	<?php else: ?>
@@ -143,7 +137,7 @@ if($adminTable->status == 404){
 	===============================================-->
 
 	<!-- https://www.w3schools.com/bootstrap5/ -->
-	<link rel="stylesheet" href="/views/assets/plugins/bootstrap5/bootstrap.min.css" >
+	<link rel="stylesheet" href="/views/assets/plugins/bootstrap5/bootstrap.min.css">
 	<!-- https://fontawesome.com/v5/search -->
 	<link rel="stylesheet" href="/views/assets/plugins/fontawesome-free/css/all.min.css">
 	<!-- https://icons.getbootstrap.com/ -->
@@ -158,15 +152,15 @@ if($adminTable->status == 404){
 	<link rel="stylesheet" href="/views/assets/plugins/tags-input/tags-input.css">
 	<!-- https://select2.org/ -->
 	<link rel="stylesheet" href="/views/assets/plugins/select2/select2.min.css">
-    <link rel="stylesheet" href="/views/assets/plugins/select2/select2-bootstrap4.min.css">
-    <!-- https://xdsoft.net/jqplugins/datetimepicker/ -->
-    <link rel="stylesheet" href="/views/assets/plugins/datetimepicker/datetimepicker.min.css">
-    <!-- https://summernote.org -->	
-    <link rel="stylesheet" href="/views/assets/plugins/summernote/summernote-bs4.min.css"> 
-    <link rel="stylesheet" href="/views/assets/plugins/summernote/summernote.min.css">
-    <link rel="stylesheet" href="/views/assets/plugins/summernote/emoji.css">
-    <!-- https://codemirror.net/ -->
-    <link rel="stylesheet" href="/views/assets/plugins/codemirror/codemirror.css">
+	<link rel="stylesheet" href="/views/assets/plugins/select2/select2-bootstrap4.min.css">
+	<!-- https://xdsoft.net/jqplugins/datetimepicker/ -->
+	<link rel="stylesheet" href="/views/assets/plugins/datetimepicker/datetimepicker.min.css">
+	<!-- https://summernote.org -->
+	<link rel="stylesheet" href="/views/assets/plugins/summernote/summernote-bs4.min.css">
+	<link rel="stylesheet" href="/views/assets/plugins/summernote/summernote.min.css">
+	<link rel="stylesheet" href="/views/assets/plugins/summernote/emoji.css">
+	<!-- https://codemirror.net/ -->
+	<link rel="stylesheet" href="/views/assets/plugins/codemirror/codemirror.css">
 	<link rel="stylesheet" href="/views/assets/plugins/codemirror/monokai.css">
 
 	<!--=============================================
@@ -180,28 +174,28 @@ if($adminTable->status == 404){
 	<!-- https://www.w3schools.com/bootstrap5/ -->
 	<script src="/views/assets/plugins/bootstrap5/bootstrap.bundle.min.js"></script>
 	<!-- https://sweetalert2.github.io/ -->
-	<script src="/views/assets/plugins/sweetalert/sweetalert.min.js"></script> 
+	<script src="/views/assets/plugins/sweetalert/sweetalert.min.js"></script>
 	<!-- https://www.jqueryscript.net/demo/Google-Inbox-Style-Linear-Preloader-Plugin-with-jQuery-CSS3/ -->
-	<script src="/views/assets/plugins/material-preloader/material-preloader.js"></script> 
+	<script src="/views/assets/plugins/material-preloader/material-preloader.js"></script>
 	<!-- https://codeseven.github.io/toastr/demo.html -->
 	<script src="/views/assets/plugins/toastr/toastr.min.js"></script>
 	<!-- http://josecebe.github.io/twbs-pagination/ -->
-	<script src="/views/assets/plugins/twbs-pagination/twbs-pagination.min.js"></script> 
+	<script src="/views/assets/plugins/twbs-pagination/twbs-pagination.min.js"></script>
 	<!-- https://momentjs.com/ -->
 	<script src="/views/assets/plugins/moment/moment.min.js"></script>
 	<script src="/views/assets/plugins/moment/moment-with-locales.min.js"></script>
 	<!--  https://www.daterangepicker.com/ -->
-	<script src="/views/assets/plugins/daterangepicker/daterangepicker.js"></script>	
+	<script src="/views/assets/plugins/daterangepicker/daterangepicker.js"></script>
 	<!-- https://bootstrap-tagsinput.github.io/bootstrap-tagsinput/examples/ -->
-	<script src="/views/assets/plugins/tags-input/tags-input.js"></script> 
+	<script src="/views/assets/plugins/tags-input/tags-input.js"></script>
 	<!-- https://select2.org/ -->
 	<script src="/views/assets/plugins/select2/select2.full.min.js"></script>
 	<!-- https://xdsoft.net/jqplugins/datetimepicker/ -->
 	<script src="/views/assets/plugins/datetimepicker/datetimepicker.full.min.js"></script>
-	<!-- https://summernote.org -->	
+	<!-- https://summernote.org -->
 	<script src="/views/assets/plugins/summernote/summernote.min.js"></script>
 	<script src="/views/assets/plugins/summernote/summernote-bs4.js"></script>
-    <script src="/views/assets/plugins/summernote/summernote-code-beautify-plugin.js"></script>
+	<script src="/views/assets/plugins/summernote/summernote-code-beautify-plugin.js"></script>
 	<script src="/views/assets/plugins/summernote/emoji.config.js"></script>
 	<script src="/views/assets/plugins/summernote/tam-emoji.min.js"></script>
 	<!-- https://codemirror.net/ -->
@@ -221,21 +215,20 @@ if($adminTable->status == 404){
 
 
 </head>
+
 <body>
 
-	<?php 
+	<?php
 
-	if(!isset($_SESSION["admin"])){
+	if (!isset($_SESSION["admin"])) {
 
-		if($admin == null){
+		if ($admin == null) {
 
 			include "pages/install/install.php";
-
-		}else{
+		} else {
 
 			include "pages/login/login.php";
 		}
-
 	}
 
 	?>
@@ -247,7 +240,7 @@ if($adminTable->status == 404){
 		===============================================-->
 
 		<div class="d-flex backDashboard" id="wrapper">
-			
+
 			<!--=============================================
 			SIDEBAR
 			===============================================-->
@@ -255,7 +248,7 @@ if($adminTable->status == 404){
 			<?php include "modules/sidebar.php" ?>
 
 			<div id="page-content-wrapper">
-				
+
 				<!--=============================================
 				NAV
 				===============================================-->
@@ -270,7 +263,7 @@ if($adminTable->status == 404){
 
 					<?php if ($routesArray[0] == "logout"): ?>
 
-						<?php include "pages/".$routesArray[0]."/".$routesArray[0].".php"; ?>
+						<?php include "pages/" . $routesArray[0] . "/" . $routesArray[0] . ".php"; ?>
 
 					<?php else: ?>
 
@@ -284,27 +277,24 @@ if($adminTable->status == 404){
 							Agregamos páginas dinámicas y personalizadas
 							===========================================-->
 
-							<?php 
+							<?php
 
-								$url = "pages?linkTo=url_page&equalTo=".$routesArray[0];
-								$method = "GET";
-								$fields = array();
+							$url = "pages?linkTo=url_page&equalTo=" . $routesArray[0];
+							$method = "GET";
+							$fields = array();
 
-								$page = CurlController::request($url,$method,$fields);
-								
-								if($page->status == 200 && $page->results[0]->type_page == "modules"){
+							$page = CurlController::request($url, $method, $fields);
 
-									include "pages/dynamic/dynamic.php";
-								
-								}else if($page->status == 200 && $page->results[0]->type_page == "custom"){
+							if ($page->status == 200 && $page->results[0]->type_page == "modules") {
 
-									include "pages/custom/".$routesArray[0]."/".$routesArray[0].".php";
-								
-								}else{
+								include "pages/dynamic/dynamic.php";
+							} else if ($page->status == 200 && $page->results[0]->type_page == "custom") {
 
-									include "pages/404/404.php";
-								
-								}
+								include "pages/custom/" . $routesArray[0] . "/" . $routesArray[0] . ".php";
+							} else {
+
+								include "pages/404/404.php";
+							}
 
 							?>
 
@@ -313,7 +303,7 @@ if($adminTable->status == 404){
 							<?php include "pages/404/404.php"; ?>
 
 						<?php endif ?>
-						
+
 					<?php endif ?>
 
 				<?php else: ?>
@@ -329,33 +319,30 @@ if($adminTable->status == 404){
 						Agregamos la página inicial
 						===========================================-->
 
-						<?php 
+						<?php
 
-							$url = "pages?linkTo=order_page&equalTo=1";
-							$method = "GET";
-							$fields = array();
+						$url = "pages?linkTo=order_page&equalTo=1";
+						$method = "GET";
+						$fields = array();
 
-							$page = CurlController::request($url,$method,$fields);
+						$page = CurlController::request($url, $method, $fields);
 
-							if($page->status == 200 && $page->results[0]->type_page == "modules"){
+						if ($page->status == 200 && $page->results[0]->type_page == "modules") {
 
-								include "pages/dynamic/dynamic.php";
-							
-							}else if($page->status == 200 && $page->results[0]->type_page == "custom"){
+							include "pages/dynamic/dynamic.php";
+						} else if ($page->status == 200 && $page->results[0]->type_page == "custom") {
 
-								include "pages/custom/".$page->results[0]->url_page."/".$page->results[0]->url_page.".php";
-							
-							}else{
+							include "pages/custom/" . $page->results[0]->url_page . "/" . $page->results[0]->url_page . ".php";
+						} else {
 
-								include "pages/404/404.php";
-							
-							}
-						
+							include "pages/404/404.php";
+						}
+
 						?>
 
 					<?php else: ?>
 
-					<!--=========================================
+						<!--=========================================
 				 	Validar permisos para editores
 					===========================================-->
 
@@ -363,27 +350,24 @@ if($adminTable->status == 404){
 
 							<?php
 
-								$url = "pages?linkTo=url_page&equalTo=".array_keys(json_decode(urldecode($_SESSION["admin"]->permissions_admin),true))[0];
-								$method = "GET";
-								$fields = array();
+							$url = "pages?linkTo=url_page&equalTo=" . array_keys(json_decode(urldecode($_SESSION["admin"]->permissions_admin), true))[0];
+							$method = "GET";
+							$fields = array();
 
-								$page = CurlController::request($url,$method,$fields);
+							$page = CurlController::request($url, $method, $fields);
 
-								$routesArray[0] = array_keys(json_decode(urldecode($_SESSION["admin"]->permissions_admin),true))[0];
+							$routesArray[0] = array_keys(json_decode(urldecode($_SESSION["admin"]->permissions_admin), true))[0];
 
-								if($page->status == 200 && $page->results[0]->type_page == "modules"){
+							if ($page->status == 200 && $page->results[0]->type_page == "modules") {
 
-									include "pages/dynamic/dynamic.php";
-								
-								}else if($page->status == 200 && $page->results[0]->type_page == "custom"){
+								include "pages/dynamic/dynamic.php";
+							} else if ($page->status == 200 && $page->results[0]->type_page == "custom") {
 
-									include "pages/custom/".$page->results[0]->url_page."/".$page->results[0]->url_page.".php";
-								
-								}else{
+								include "pages/custom/" . $page->results[0]->url_page . "/" . $page->results[0]->url_page . ".php";
+							} else {
 
-									include "pages/404/404.php";
-								
-								}
+								include "pages/404/404.php";
+							}
 
 							?>
 
@@ -397,58 +381,69 @@ if($adminTable->status == 404){
 
 		</div>
 
-		<?php 
+		<?php
 
 		/*=============================================
     	Incluimos modal de perfiles
     	=============================================*/
 
-    	include "modules/modals/profile.php"; 
+		include "modules/modals/profile.php";
 		require_once "controllers/admins.controller.php";
 		$update = new AdminsController();
-	    $update->updateAdmin();
+		$update->updateAdmin();
 
-	    if($_SESSION["admin"]->rol_admin == "superadmin"){
+		if ($_SESSION["admin"]->rol_admin == "superadmin") {
 
-	    	/*=============================================
+			/*=============================================
 	    	Incluimos modal de páginas
 	    	=============================================*/
 
-		    include "views/modules/modals/pages.php";
+			include "views/modules/modals/pages.php";
 
-		    require_once "controllers/pages.controller.php";
+			require_once "controllers/pages.controller.php";
 			$managePage = new PagesController();
-		    $managePage->managePage();
+			$managePage->managePage();
 
-		    /*=============================================
+			/*=============================================
 	    	Incluimos modal de módulos
 	    	=============================================*/
 
-		    include "views/modules/modals/modules.php";
+			include "views/modules/modals/modules.php";
 
-		    require_once "controllers/modules.controller.php";
+			require_once "controllers/modules.controller.php";
 			$manageModule = new ModulesController();
 			$manageModule->manageModule();
-   
 		}
 
 		?>
 
-	<!--=============================================
+		<!--=============================================
 	CUSTOM JS
 	===============================================-->
 
-	<script src="/views/assets/js/dashboard/dashboard.js"></script>
-	<script src="/views/assets/js/pages/pages.js"></script>
-	<script src="/views/assets/js/modules/modules.js"></script>
-	<script src="/views/assets/js/dynamic-forms/dynamic-forms.js"></script>
-	<script src="/views/assets/js/dynamic-tables/dynamic-tables.js"></script>
-	<script src="/views/assets/js/fms/fms.js"></script>
-		
+		<script src="/views/assets/js/dashboard/dashboard.js"></script>
+		<script src="/views/assets/js/pages/pages.js"></script>
+		<script src="/views/assets/js/modules/modules.js"></script>
+		<script src="/views/assets/js/dynamic-forms/dynamic-forms.js"></script>
+		<script src="/views/assets/js/dynamic-tables/dynamic-tables.js"></script>
+		<script src="/views/assets/js/fms/fms.js"></script>
+
 	<?php endif ?>
 
 	<script src="/views/assets/js/forms/forms.js"></script>
-	
-	
+
+		<!--=============================================
+	DATATABLES
+	===============================================-->
+	<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+	<script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
+	<script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js"></script>
+	<script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.print.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+
+
 </body>
+
 </html>

@@ -20,7 +20,7 @@ MAIN
 
             <?php
             $numbersString = $_GET["numbers"] ?? '';
-            $isDynamic = is_numeric($numbersString);
+
             $numbersArray = explode(",", $numbersString);
             ?>
             <input type="hidden" value="<?= $numbersString ?>" name="numbers">
@@ -207,12 +207,9 @@ MAIN
 
                                     <div class="row row-cols-1 row-cols-sm-2">
 
-                                        <div class="col pt-2 px-2">
-
+                                        <!-- <div class="col pt-2 px-2">
                                             <div class="card rounded px-4 py-1">
-
                                                 <div class="form-check px-2 mb-3">
-
                                                     <input type="radio" class="form-check-input mt-2 ml-1 changePaid"
                                                         id="radio1" name="optradio" value="paypal" checked
                                                         mode="paidPayPal">
@@ -231,6 +228,24 @@ MAIN
 
                                             </div>
 
+                                        </div> -->
+
+                                        <!-- PAYPHONE -->
+                                        <div class="col pt-2 px-2">
+                                            <div class="card rounded px-4 py-1">
+                                                <div class="form-check px-2 mb-3">
+                                                    <input type="radio" class="form-check-input mt-2 ml-1 changePaid"
+                                                        id="radio2" name="optradio" value="payphone"
+                                                        mode="paidPayPhone">
+                                                    <label for="radio2" class="form-check-label float-end mt-2">
+                                                        <span>
+                                                            PayPhone
+                                                            <img src="/views/assets/img/payphone_logo.png"
+                                                                class="img-fluid" style="width:150px">
+                                                        </span>
+                                                    </label>
+                                                </div>
+                                            </div>
                                         </div>
 
                                         <div class="col pt-2 px-2">
@@ -246,7 +261,7 @@ MAIN
                                                         <span>
                                                             Transferencia / Depósito
                                                             <img src="/views/assets/img/transferencia.png"
-                                                                class="img-fluid" style="width:180px">
+                                                                class="img-fluid" style="width:190px">
                                                         </span>
 
                                                     </label>
@@ -270,7 +285,7 @@ MAIN
 
                                 <div class="col px-5 pb-3">
 
-                                    <div class="card cardPaid rounded" id="paidPayPal">
+                                    <!-- <div class="card cardPaid rounded" id="paidPayPal">
 
                                         <div class="card-header mb-0 pb-0">
 
@@ -299,6 +314,31 @@ MAIN
 
                                         </div>
 
+                                    </div> -->
+
+                                    <div class="card cardPaid rounded" id="paidPayPhone"
+                                        style="display: none; background-color: #FFFFFF;">
+                                        <div class="card-header mb-0 pb-0">
+                                            <figure class="text-center">
+                                                <small>Usarás</small>
+                                                <img src="/views/assets/img/payphone.png" style="width: 80px;">
+                                                <br>
+                                                <small>Todas las transaccionesson seguras y están
+                                                    encriptadas.</small>
+                                            </figure>
+                                        </div>
+                                        <div class="card-body pb-0">
+                                            <div class="px-3">
+                                                <div class="small">
+                                                    <div class="px-2 mb-2 text-center pb-2">
+                                                        <small class="small">
+                                                            Luego de hacer clic en “Comprar ahora”, se abrirá la
+                                                            plataforma de PayPhone para procesar tu pago.
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <div class="card cardPaid rounded" id="paidBank"
@@ -318,7 +358,7 @@ MAIN
                                                 <div class="col-md-6 col-sm-6 mb-3">
                                                     <div class="bank-option border rounded p-3  text-center cursor-pointer"
                                                         data-bank="BANCO PICHINCHA" data-type="Cuenta Corriente"
-                                                        data-number="2100247823">
+                                                        data-number="<?= $_ENV["ACCOUNT_PICHINCHA"] ?>">
                                                         <img src="/views/assets/img/pichincha_logo.png"
                                                             alt="Banco Pichincha" style="height: 28px;">
                                                     </div>
@@ -328,7 +368,7 @@ MAIN
                                                 <div class="col-md-6 col-sm-6 mb-3">
                                                     <div class="bank-option border rounded p-3  text-center cursor-pointer"
                                                         data-bank="Produbanco" data-type="Cuenta Ahorro"
-                                                        data-number="12183000841">
+                                                        data-number="<?= $_ENV["ACCOUNT_PRODUBANCO"] ?>">
                                                         <img src="/views/assets/img/produbanco_logo.webp"
                                                             alt="Produbanco" style="height: 28px;">
                                                     </div>
@@ -338,7 +378,7 @@ MAIN
                                                 <div class="col-md-6 col-sm-6 mb-3">
                                                     <div class="bank-option border rounded p-1  text-center cursor-pointer"
                                                         data-bank="Banco del Pacífico" data-type="Cuenta Ahorro"
-                                                        data-number="1053097335">
+                                                        data-number="<?= $_ENV["ACCOUNT_PACIFICO"] ?>">
                                                         <img src="/views/assets/img/pacifico_logo.png"
                                                             alt="Banco del Pacífico" style="height: 52px;">
                                                     </div>
@@ -348,7 +388,7 @@ MAIN
                                                 <div class="col-md-6 col-sm-6 mb-3">
                                                     <div class="bank-option border rounded p-3  text-center cursor-pointer"
                                                         data-bank="Banco Guayaquil" data-type="Cuenta Corriente"
-                                                        data-number="0012439045">
+                                                        data-number="<?= $_ENV["ACCOUNT_GUAYAQUIL"] ?>">
                                                         <img src="/views/assets/img/guayaquil_logo.png"
                                                             alt="Banco Guayaquil" style="height: 28px;">
                                                     </div>
@@ -370,20 +410,23 @@ MAIN
                                                 </p>
 
                                                 <p class="mb-1" style="color: #111111 !important;">
-                                                    👤 Titular: <strong style="color: #111111 !important;">Alex Gustavo
-                                                        León Lema</strong>
+                                                    👤 Titular: <strong style="color: #111111 !important;">
+                                                        <?= $_ENV["TRANSFER_HOLDER"] ?>
+                                                    </strong>
                                                 </p>
 
-
                                                 <p class="mb-1" style="color: #111111 !important;">
-                                                    🪪 Número de cédula: <strong
-                                                        style="color: #111111 !important;">1721855912</strong>
+                                                    🪪 Número de cédula: <strong style="color: #111111 !important;">
+                                                        <?= $_ENV["TRANSFER_ID"] ?>
+                                                    </strong>
                                                 </p>
 
                                                 <p class="mb-0" style="color: #111111 !important;">
-                                                    📧 Correo: <strong
-                                                        style="color: #111111 !important;">ventas@proyectoecuador.com</strong>
+                                                    📧 Correo: <strong style="color: #111111 !important;">
+                                                        <?= $_ENV["TRANSFER_EMAIL"] ?>
+                                                    </strong>
                                                 </p>
+
                                             </div>
 
                                             <!-- Pasos para wp -->
@@ -502,5 +545,4 @@ MAIN
             });
         });
     </script>
-
 </div>

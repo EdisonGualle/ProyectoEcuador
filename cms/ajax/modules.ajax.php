@@ -1,5 +1,5 @@
 <?php 
-
+require_once "../extensions/env.loader.php";
 require_once "../controllers/curl.controller.php";
 require_once "../controllers/install.controller.php";
 

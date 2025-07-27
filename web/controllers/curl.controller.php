@@ -52,7 +52,7 @@ class CurlController
     // $clientID = "AXpql4RWvMYn6zypplykPUtqlkIQfJcEjnfW7FOauwVFaQEqGhCHy-QCB599SehK7R1zBwTs_ZLKILcs"; //LIVE
     // $secretClient = "EH_NmJQbGj0jDxe3sYK4yUeAcKFcQu5PKpQYcgcUv5Ve7oqbTsbvVbay3-H5l-7ahlYiFp4zeZyBtcAl"; //LIVE
     $basic = base64_encode($clientID . ":" . $secretClient);
-    
+
 
     $curl = curl_init();
 
@@ -115,5 +115,5 @@ class CurlController
   }
 
 
-   }
+}
 

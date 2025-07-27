@@ -1,5 +1,5 @@
 <?php 
-
+require_once "../extensions/env.loader.php";
 define('DIR', __DIR__);
 
 ini_set("display_errors",1);

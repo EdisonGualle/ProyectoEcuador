@@ -41,15 +41,13 @@ class DynamicController
 					if ($value->type_column == "password" && !empty($_POST[$value->title_column])) {
 
 						$fields .= $value->title_column . "=" . crypt(trim($_POST[$value->title_column]), '$2a$07$azybxcags23425sdg23sdfhsd$') . "&";
-
 					} else if ($value->type_column == "email") {
 
 						$fields .= $value->title_column . "=" . trim($_POST[$value->title_column]) . "&";
-
 					} else {
 
-						$fields .= $value->title_column . "=" . urlencode(trim($_POST[$value->title_column])) . "&";
-
+						// $fields.= $value->title_column."=".urlencode(trim($_POST[$value->title_column]))."&";
+						$fields .= $value->title_column . "=" . (isset($_POST[$value->title_column]) ? urlencode(trim($_POST[$value->title_column])) : "") . "&";
 					}
 
 					$count++;
@@ -61,6 +59,7 @@ class DynamicController
 						$update = CurlController::request($url, $method, $fields);
 
 						if ($update->status == 200) {
+
 
 
 							if ($module->title_module === "orders" && isset($_POST["status_order"]) && $_POST["status_order"] === "PAID") {
@@ -136,11 +135,21 @@ class DynamicController
 										$linkWhatsapp = $raffle->group_ws_raffle ?? 'https://proyectoecuador.com/ingresar';
 
 										// Enviar correo con ambos botones
-										TemplateController::sendEmail($subject, $email, $title, $message, $linkPedido, $linkWhatsapp);
+										if ($order->email_sent_order === 'Enviado') {
+											echo '<div class="alert alert-warning text-center">⚠️ Este pedido ya fue notificado por correo.</div>';
+										} else {
+											$sendEmail = TemplateController::sendEmail($subject, $email, $title, $message, $linkPedido, $linkWhatsapp);
+
+											if ($sendEmail === 'ok') {
+												CurlController::request("orders?id=$id_order&nameId=id_order&token=no&except=id_order", "PUT", http_build_query([
+													"email_sent_order" => "Enviado"
+												]));
+											}
+										}
+
 									}
 								}
 							}
-
 
 
 							echo '
@@ -155,14 +164,9 @@ class DynamicController
 								</script>
 
 							';
-
-
 						}
 					}
-
 				}
-
-
 			} else {
 
 				/*=============================================
@@ -179,14 +183,13 @@ class DynamicController
 					if ($value->type_column == "password") {
 
 						$fields[$value->title_column] = crypt(trim($_POST[$value->title_column]), '$2a$07$azybxcags23425sdg23sdfhsd$');
-
 					} else if ($value->type_column == "email") {
 
 						$fields[$value->title_column] = trim($_POST[$value->title_column]);
 					} else {
 
-						$fields[$value->title_column] = urlencode(trim($_POST[$value->title_column]));
-
+						// $fields[$value->title_column] = urlencode(trim($_POST[$value->title_column]));
+						$fields[$value->title_column] = isset($_POST[$value->title_column]) ? urlencode(trim($_POST[$value->title_column])) : "";
 					}
 
 					$count++;
@@ -211,16 +214,10 @@ class DynamicController
 								</script>
 
 							';
-
 						}
 					}
-
 				}
-
 			}
-
 		}
-
 	}
-
 }

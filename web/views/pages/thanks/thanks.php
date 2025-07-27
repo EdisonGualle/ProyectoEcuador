@@ -1,6 +1,7 @@
 <?php
 
 $status = "";
+// archivo thanks.php  en web/views/pages/thanks/thanks.php
 
 if (isset($_GET["ref"])) {
 
@@ -85,38 +86,103 @@ if (isset($_GET["ref"])) {
 				$fields = http_build_query(["status_order" => $status]);
 				CurlController::request($url, "PUT", $fields);
 
-				// Enviar correo
-				$subjectClient = "🎉 ¡Gracias por tu compra " . TemplateController::capitalize($order->name_client) . "!";
-				$emailClient = trim($order->email_client);
-				$titleClient = "[ProyectoEcuador] Pedido # " . $order->ref_order;
+				// Validar si ya se envió el correo
+				if (empty($order->email_sent_order) || $order->email_sent_order === "No Enviado") {
 
-				$messageClient = "
-        <p>Hola <strong>" . TemplateController::capitalize($order->name_client) . " " . TemplateController::capitalize($order->surname_client) . "</strong>,</p>
-        <p>Gracias por participar en nuestro sorteo 🎊</p>
-        <p><strong>Estos son tus números:</strong></p>
-        <h1 style='margin: 10px 0;'>" . implode(",", $numbers) . "</h1>
-        <p>📢 <strong>¡ATENCIÓN!</strong></p>
-        <p>Únete al grupo de WhatsApp para recibir actualizaciones y noticias del sorteo</p>
-        <p style='margin-top: 20px;'>🍀 ¡Te deseamos mucha suerte!</p>";
+					$subjectClient = "🎉 ¡Gracias por tu compra " . TemplateController::capitalize($order->name_client) . "!";
+					$emailClient = trim($order->email_client);
+					$titleClient = "[ProyectoEcuador] Pedido # " . $order->ref_order;
 
-				$urlReturn = $_SERVER["REQUEST_SCHEME"] . "://" . $_SERVER["SERVER_NAME"];
-				$linkPedido = $urlReturn . "/thanks?ref=" . $order->ref_order;
-				$linkWhatsapp = $order->group_ws_raffle ?? 'https://proyectoecuador.com/ingresar';
+					$messageClient = "
+					<p>Hola <strong>" . TemplateController::capitalize($order->name_client) . " " . TemplateController::capitalize($order->surname_client) . "</strong>,</p>
+					<p>Gracias por participar en nuestro sorteo 🎊</p>
+					<p><strong>Estos son tus números:</strong></p>
+					<h1 style='margin: 10px 0;'>" . implode(",", $numbers) . "</h1>
+					<p>📢 <strong>¡ATENCIÓN!</strong></p>
+					<p>Únete al grupo de WhatsApp para recibir actualizaciones y noticias del sorteo</p>
+					<p style='margin-top: 20px;'>🍀 ¡Te deseamos mucha suerte!</p>";
 
-				$sendEmail = TemplateController::sendEmail($subjectClient, $emailClient, $titleClient, $messageClient, $linkPedido, $linkWhatsapp);
+					$urlReturn = $_SERVER["REQUEST_SCHEME"] . "://" . $_SERVER["SERVER_NAME"];
+					$linkPedido = $urlReturn . "/thanks?ref=" . $order->ref_order;
+					$linkWhatsapp = $order->group_ws_raffle ?? $_ENV["DEFAULT_WHATSAPP_GROUP"];
 
-				if ($sendEmail == "ok") {
-					echo '<div class="col-12 mx-1 mb-3 text-center alert alert-success">✅ Su pago ha sido acreditado. Revisa tu correo electrónico 📩</div>';
-				} else {
-					echo '<div class="col-12 mx-1 mb-3 text-center alert alert-warning">⚠️ Su pago fue exitoso, pero hubo un problema al enviar el correo</div>';
+					$sendEmail = TemplateController::sendEmail($subjectClient, $emailClient, $titleClient, $messageClient, $linkPedido, $linkWhatsapp);
+
+					if ($sendEmail == "ok") {
+						echo '<div class="col-12 mx-1 mb-3 text-center alert alert-success">✅ Su pago ha sido acreditado. Revisa tu correo electrónico 📩</div>';
+
+						// ✅ Marcar como "Enviado"
+						$url = "orders?id=" . $order->id_order . "&nameId=id_order&token=no&except=id_order";
+						$fields = http_build_query(["email_sent_order" => "Enviado"]);
+						CurlController::request($url, "PUT", $fields);
+
+					} else {
+						echo '<div class="col-12 mx-1 mb-3 text-center alert alert-warning">⚠️ Su pago fue exitoso, pero hubo un problema al enviar el correo</div>';
+					}
 				}
+
 			}
 
 
 		} else {
 			$status = "PAID";
-			$numbers = explode(",", $order->numbers_order);
+
+			// Obtener todos los números de ventas asociadas a esta orden
+			$ventas = CurlController::request(
+				"sales?linkTo=id_order_sale&equalTo=" . $order->id_order,
+				"GET",
+				[]
+			);
+
+			$numbers = [];
+
+			if ($ventas && $ventas->status == 200 && !empty($ventas->results)) {
+				foreach ($ventas->results as $venta) {
+					$numbers[] = $venta->number_sale;
+				}
+			}
+
+			// Verificamos si se debe enviar el correo
+			if (
+				$order->method_order === "payphone" &&
+				$order->status_order === "PAID" &&
+				(
+					empty($order->email_sent_order) ||
+					$order->email_sent_order === "No Enviado"
+				)
+			) {
+				$subjectClient = "🎉 ¡Gracias por tu compra " . TemplateController::capitalize($order->name_client) . "!";
+				$emailClient = trim($order->email_client);
+				$titleClient = "[ProyectoEcuador] Pedido # " . $order->ref_order;
+
+				$messageClient = "
+				<p>Hola <strong>" . TemplateController::capitalize($order->name_client) . " " . TemplateController::capitalize($order->surname_client) . "</strong>,</p>
+				<p>Gracias por participar en nuestro sorteo 🎊</p>
+				<p><strong>Estos son tus números:</strong></p>
+				<h1 style='margin: 10px 0;'>" . implode(",", $numbers) . "</h1>
+				<p>📢 <strong>¡ATENCIÓN!</strong></p>
+				<p>Únete al grupo de WhatsApp para recibir actualizaciones y noticias del sorteo</p>
+				<p style='margin-top: 20px;'>🍀 ¡Te deseamos mucha suerte!</p>";
+
+				$urlReturn = $_SERVER["REQUEST_SCHEME"] . "://" . $_SERVER["SERVER_NAME"];
+				$linkPedido = $urlReturn . "/thanks?ref=" . $order->ref_order;
+				$linkWhatsapp = $order->group_ws_raffle ?? $_ENV["DEFAULT_WHATSAPP_GROUP"];
+
+				$sendEmail = TemplateController::sendEmail($subjectClient, $emailClient, $titleClient, $messageClient, $linkPedido, $linkWhatsapp);
+
+				if ($sendEmail === "ok") {
+					echo '<div class="col-12 mx-1 mb-3 text-center alert alert-success">✅ Su pago ha sido acreditado. Revisa tu correo electrónico 📩</div>';
+
+					// Actualizamos el campo a "Enviado"
+					$url = "orders?id=" . $order->id_order . "&nameId=id_order&token=no&except=id_order";
+					$fields = http_build_query(["email_sent_order" => "Enviado"]);
+					CurlController::request($url, "PUT", $fields);
+				} else {
+					echo '<div class="col-12 mx-1 mb-3 text-center alert alert-warning">⚠️ Su pago fue exitoso, pero hubo un problema al enviar el correo</div>';
+				}
+			}
 		}
+
 
 		include "modules/hero/hero.php";
 		include "modules/main/main.php";

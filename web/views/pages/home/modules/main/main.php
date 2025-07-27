@@ -50,7 +50,7 @@ MAIN
                         <div class="row justify-content-center text-center mb-5">
                             <div class="col-12 col-lg-8">
                                 <h5 class="text-uppercase josefin-sans-700 t1">Necesita saber acerca de</h5>
-                                <h1 class="text-uppercase josefin-sans-700 display-4">Cómo Jugar</h1>
+                                <h1 class="text-uppercase josefin-sans-700 display-4">Cómo Participar</h1>
                                 <p class="h5 josefin-sans-700">¡Sigue estos 3 sencillos pasos!</p>
                             </div>
                         </div>

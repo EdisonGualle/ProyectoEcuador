@@ -1,17 +1,18 @@
-<?php 
+<?php
 
-class CurlController{
+class CurlController
+{
 
-	/*=============================================
-	Peticiones a la API
-	=============================================*/	
+	static public function request($url, $method, $fields)
+	{
 
-	static public function request($url,$method,$fields){
+		$baseUrl = $_ENV["API_BASE_URL"] ?? null;
+		$token = $_ENV["API_AUTH_TOKEN"] ?? null;
 
 		$curl = curl_init();
 
 		curl_setopt_array($curl, array(
-			CURLOPT_URL => 'http://apiraffle.raffle.com/'.$url,
+			CURLOPT_URL => $baseUrl . '/' . ltrim($url, '/'),
 			CURLOPT_RETURNTRANSFER => true,
 			CURLOPT_ENCODING => '',
 			CURLOPT_MAXREDIRS => 10,
@@ -21,53 +22,13 @@ class CurlController{
 			CURLOPT_CUSTOMREQUEST => $method,
 			CURLOPT_POSTFIELDS => $fields,
 			CURLOPT_HTTPHEADER => array(
-				'Authorization: gsdfgdfhdsfhsdfgh4332465dfhdfgh34sdgsdfg345AFSGFghdrfh4'
+				'Authorization: ' . $token
 			),
 		));
 
 		$response = curl_exec($curl);
 
 		curl_close($curl);
-		$response = json_decode($response);
-		return $response;
-
+		return json_decode($response);
 	}
-
-	/*=============================================
-	Peticiones a la API de ChatGPT
-	=============================================*/	
-
-	static public function chatGPT($content,$token,$org){
-
-		$curl = curl_init();
-
-		curl_setopt_array($curl, array(
-		  CURLOPT_URL => 'https://api.openai.com/v1/chat/completions',
-		  CURLOPT_RETURNTRANSFER => true,
-		  CURLOPT_ENCODING => '',
-		  CURLOPT_MAXREDIRS => 10,
-		  CURLOPT_TIMEOUT => 0,
-		  CURLOPT_FOLLOWLOCATION => true,
-		  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-		  CURLOPT_CUSTOMREQUEST => 'POST',
-		  CURLOPT_POSTFIELDS =>'{
-		    "model": "gpt-4-0613",
-		    "messages":[{"role": "user", "content": "'.$content.'"}]
-		}',
-		  CURLOPT_HTTPHEADER => array(
-		    'Authorization: Bearer '.$token,
-		    'OpenAI-Organization: '.$org,
-		    'Content-Type: application/json'
-		  ),
-		));
-
-		$response = curl_exec($curl);
-
-		curl_close($curl);
-		$response = json_decode($response);
-		return $response->choices[0]->message->content;
-
-	}
-
-
 }

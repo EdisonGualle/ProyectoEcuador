@@ -61,7 +61,7 @@
 
 				</div>
 
-				<div class="form-group mb-3">
+				<!-- <div class="form-group mb-3">
 					
 					<label for="symbol_admin">Símbolo del Dashboard <sup>*</sup></label>
 
@@ -76,7 +76,7 @@
 					<div class="valid-feedback">Válido.</div>
     				<div class="invalid-feedback">Campo inválido.</div>
 
-				</div>
+				</div> -->
 
 				<div class="form-group mb-3">
 					

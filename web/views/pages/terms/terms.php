@@ -6,11 +6,11 @@
 
         <!-- Tarjeta centrada y separada -->
         <div class="container d-flex justify-content-center align-items-center" style="padding-top: 0px; padding-bottom: 200px;">
-            <div class="rounded-4 shadow-xl p-4 px-5 text-white"
+            <div class="rounded-4 shadow-xl p-4 px-5 text-white responsive-card"
                 style="max-width: 960px; background: <?php echo $template->color1_template; ?>; z-index: 2; position: relative; border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(3px);">
 
                 <!-- Título destacado centrado y con estilo de botón -->
-                <h1 class="btn btn-default btn-lg rounded pt-3 text-uppercase b1 border-0 text-white d-block mx-auto text-center mb-4">
+                <h1 class="btn btn-default btn-lg rounded pt-3 text-uppercase b1 border-0 text-white d-block mx-auto text-center mb-4 responsive-title">
                     TÉRMINOS Y CONDICIONES SORTEOS PROYECTO ECUADOR
                 </h1>
 
@@ -30,8 +30,9 @@
                     </li>
                     <li class="mb-4">
                         <h5 class="mb-2">4. Premio</h5>
-                        <p>Una casa de 538 m² de terreno y 122 m² de construcción ubicada en Quito, Pichincha, cantón Rumiñahui, con documentación en regla.</p>
+                        <p><?= htmlspecialchars($raffle->location_raffle) ?>.</p>
                     </li>
+
                     <li class="mb-4">
                         <h5 class="mb-2">5. Selección del ganador</h5>
                         <p>El ganador será elegido de forma aleatoria con AppSorteos entre quienes hayan comprado números. Se anunciará en transmisión en vivo.</p>
@@ -83,3 +84,105 @@
 <div class="position-relative" style="z-index: 1;">
     <?php include "views/modules/svgs/svgs.php"; ?>
 </div>
+
+<style>
+    /* Estilos base (para PC) */
+    #heroCheckout .responsive-card {
+        margin-top: 2rem;
+    }
+
+    #heroCheckout .responsive-title {
+        margin-bottom: 2rem;
+    }
+
+    /* Media queries para responsividad */
+    @media (max-width: 768px) {
+        .responsive-card {
+            margin: 1rem !important;
+            padding: 1.5rem 1rem !important;
+            margin-top: 0.5rem !important;
+            /* Reducido solo en móvil */
+        }
+
+        .responsive-title {
+            font-size: 1.2rem !important;
+            padding: 1rem !important;
+            line-height: 1.3 !important;
+            margin-bottom: 1rem !important;
+            /* Reducido solo en móvil */
+        }
+
+        .container-fluid .container {
+            padding-bottom: 100px !important;
+        }
+
+        #heroCheckout .container-fluid {
+            padding-top: 1rem !important;
+            /* Reducido solo en móvil */
+            padding-bottom: 1rem !important;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .responsive-card {
+            margin: 0.5rem !important;
+            padding: 1rem 0.75rem !important;
+            margin-top: 0.25rem !important;
+            /* Más reducido en móvil pequeño */
+        }
+
+        .responsive-title {
+            font-size: 1rem !important;
+            padding: 0.75rem !important;
+            margin-bottom: 0.75rem !important;
+            /* Más reducido en móvil pequeño */
+        }
+
+        .container-fluid .container {
+            padding-bottom: 50px !important;
+        }
+
+        h5 {
+            font-size: 1rem !important;
+        }
+
+        p {
+            font-size: 0.9rem !important;
+            line-height: 1.4 !important;
+        }
+
+        .mb-4 {
+            margin-bottom: 1.5rem !important;
+        }
+
+        #heroCheckout .container-fluid {
+            padding-top: 0.5rem !important;
+            /* Más reducido en móvil pequeño */
+            padding-bottom: 0.5rem !important;
+        }
+    }
+
+    @media (max-width: 400px) {
+        .responsive-card {
+            margin: 0.25rem !important;
+            padding: 0.75rem 0.5rem !important;
+        }
+
+        .responsive-title {
+            font-size: 0.9rem !important;
+            padding: 0.5rem !important;
+            margin-bottom: 0.5rem !important;
+            /* Mínimo margen en móviles muy pequeños */
+        }
+
+        h5 {
+            font-size: 0.95rem !important;
+            margin-bottom: 0.5rem !important;
+        }
+
+        p {
+            font-size: 0.85rem !important;
+            line-height: 1.3 !important;
+        }
+    }
+</style>

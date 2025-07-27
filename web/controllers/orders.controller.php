@@ -180,9 +180,9 @@ class OrdersController
           "Hola 👋, deseo participar en el sorteo y he reservado mis números.\n\n" .
           "💵 Realizaré el pago mediante depósito o transferencia a la siguiente cuenta:\n\n" .
           "{$banco}\n" .
-          "Titular: Alex Gustavo León Lema\n" .
-          "Cédula: 1721855912\n" .
-          "Correo: ventas@proyectoecuador.com\n\n" .
+          "Titular: " . $_ENV['TRANSFER_HOLDER'] . "\n" .
+          "Cédula: " . $_ENV['TRANSFER_ID'] . "\n" .
+          "Correo: " . $_ENV['TRANSFER_EMAIL'] . "\n\n" .
           "📋 *Mis datos personales:*\n" .
           "Nombre: $cliente\n" .
           "Correo: " . $_POST["email"] . "\n" .
@@ -199,57 +199,46 @@ class OrdersController
       }
 
 
+      // Si el método de pago es PayPhone
+      if ($_POST["optradio"] == "payphone") {
 
-      // Redirigir a PayPal
-      if ($_POST["optradio"] == "paypal") {
-        $urlReturn = $_SERVER["REQUEST_SCHEME"] . "://" . $_SERVER["SERVER_NAME"];
-        $fields = '{
-          "intent": "CAPTURE",
-          "purchase_units": [{
-            "reference_id": "' . $ref . '",
-            "amount": {
-              "currency_code": "USD",
-              "value": "' . number_format($total, 2, '.', '') . '"
-            }
-          }],
-          "payment_source": {
-            "paypal": {
-              "experience_context": {
-                "payment_method_preference": "IMMEDIATE_PAYMENT_REQUIRED",
-                "user_action": "PAY_NOW",
-                "return_url": "' . $urlReturn . '/thanks?ref=' . $ref . '",
-                "cancel_url": "' . $urlReturn . '/checkout?numbers=' . $_POST["numbers"] . '"
-              }
-            }
-          }
-        }';
+        $_SESSION["last_order_ref"] = $ref;
 
-        $paypal = CurlController::paypal('v2/checkout/orders', 'POST', $fields);
+        $orderId = $createOrder->results->lastId;
 
-        if (isset($paypal->status) && $paypal->status == "PAYER_ACTION_REQUIRED") {
-          $url = "orders?id=" . $createOrder->results->lastId . "&nameId=id_order&token=no&except=id_pay_order";
-          $fields = "id_pay_order=" . $paypal->id;
-          $updateOrder = CurlController::request($url, "PUT", $fields);
+        // Enviar correo al admin
+        $subject = "[ProyectoEcuador] Pedido recibido por $" . number_format($total, 2);
+        $email = $raffle->email_raffle ?? $_ENV['ADMIN_EMAIL'];
+        $title = "[ProyectoEcuador] Pedido # " . $ref;
+        $message = "
+        <p>Nuevo pedido recibido de <strong>" . TemplateController::capitalize($_POST["name"]) . " " . TemplateController::capitalize($_POST["surname"]) . "</strong></p>
+        <p>📞 Whatsapp: " . trim($_POST["whatsapp"]) . "<br>
+        📧 Email: " . trim($_POST["email"]) . "</p>
+        <p><strong>Número(s):</strong> <strong>" . $_POST["numbers"] . "</strong></p>
+        <p>Método de pago: PayPhone</p>
+        <p>Total: $" . number_format($total, 2) . "</p>";
+        TemplateController::sendEmail($subject, $email, $title, $message, "https://proyectoecuador.com/ingresar");
 
-          if ($updateOrder->status == 200) {
-            // Enviar correo al admin
-            $subject = "[ProyectoEcuador] Pedido recibido por $" . number_format($total, 2);
-            $email = $raffle->email_raffle ?? 'admin@proyectoecuador.com';
-            $title = "[ProyectoEcuador] Pedido # " . $ref;
-            $message = "
-              <p>De <strong>" . TemplateController::capitalize($_POST["name"]) . " " . TemplateController::capitalize($_POST["surname"]) . "</strong>,</p>
-              <p>📞 Whatsapp: " . trim($_POST["whatsapp"]) . "<br>
-              📧 Email: " . trim($_POST["email"]) . "</p>
-              <p><strong>Número(s):</strong> <strong>" . $_POST["numbers"] . "</strong></p>";
-            TemplateController::sendEmail($subject, $email, $title, $message, "https://proyectoecuador.com/ingresar");
+        // Guardar datos  en localStorage para que el frontend pueda usarlos al renderizar el botón
+        echo "<script>
+        localStorage.setItem('pp_order_ref', '$ref');
+        localStorage.setItem('pp_order_id', '$orderId');
+        localStorage.setItem('pp_raffle_id', '{$raffle->id_raffle}');
+        localStorage.setItem('pp_client_id', '$clientId');
+        localStorage.setItem('pp_is_dynamic', '$isDynamic');
+        localStorage.setItem('pp_numbers', '" . htmlspecialchars($_POST["numbers"]) . "');
+        localStorage.setItem('pp_total', '" . number_format($total, 2, '.', '') . "');
+        localStorage.setItem('pp_client_name', '" . TemplateController::capitalize($_POST["name"]) . "');
+        localStorage.setItem('pp_client_surname', '" . TemplateController::capitalize($_POST["surname"]) . "');
+        localStorage.setItem('pp_client_email', '" . trim($_POST["email"]) . "');
+        localStorage.setItem('pp_client_phone', '" . trim($_POST["whatsapp"]) . "');
 
-            echo "<script>window.location = '" . $paypal->links[1]->href . "';</script>";
-          }
-        } else {
-          echo '<div class="col-12 mx-1 mb-3 text-center alert alert-danger">ERROR: PayPal presenta errores, intenta con otro medio de pago</div>';
-          return;
-        }
+       window.location.href = '/payphone/confirmar?ref=$ref';
+      </script>";
+        return;
       }
+
+
     }
   }
 }

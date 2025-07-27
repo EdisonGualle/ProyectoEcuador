@@ -1,17 +1,19 @@
-<?php 
+<?php
 
-class InstallController{
+class InstallController
+{
 
 	/*=============================================
 	Información de la base de datos
 	=============================================*/
 
-	static public function infoDatabase(){
+	static public function infoDatabase()
+	{
 
 		$infoDB = array(
-			"database" => "raffledb",
-			"user" => "root",
-			"pass" => ""
+			"database" => $_ENV["DB_NAME"],
+			"user" => $_ENV["DB_USER"],
+			"pass" => $_ENV["DB_PASS"]
 		);
 
 		return $infoDB;
@@ -22,20 +24,22 @@ class InstallController{
 	Conexión a la base de datos
 	=============================================*/
 
-	static public function connect(){
+	static public function connect()
+	{
 
-		try{
+		try {
 
-			$link = new PDO("mysql:host=localhost;dbname=".InstallController::infoDatabase()["database"],
-		                    InstallController::infoDatabase()["user"],
-		                    InstallController::infoDatabase()["pass"]
-		                );
-			
+			$link = new PDO(
+				"mysql:host=" . $_ENV["DB_HOST"] . ";dbname=" . InstallController::infoDatabase()["database"],
+				InstallController::infoDatabase()["user"],
+				InstallController::infoDatabase()["pass"]
+			);
+
 			$link->exec("set names utf8");
 
-		}catch(PDOException $e){
+		} catch (PDOException $e) {
 
-			die("Error: ".$e->getMessage());
+			die("Error: " . $e->getMessage());
 		}
 
 		return $link;
@@ -46,19 +50,20 @@ class InstallController{
 	Instalación del sistema
 	=============================================*/
 
-	public function install(){
+	public function install()
+	{
 
-		if(isset($_POST["email_admin"])){
+		if (isset($_POST["email_admin"])) {
 
 			echo '<script>
 					fncMatPreloader("on");
 					fncSweetAlert("loading", "Instalando...", "");
 				</script>';
-			
+
 			/*=============================================
 			Creamos la tabla admins
 			=============================================*/
-			
+
 			$sqlAdmins = "CREATE TABLE admins ( 
 				id_admin INT NOT NULL AUTO_INCREMENT,
 				email_admin TEXT NULL DEFAULT NULL,
@@ -84,7 +89,7 @@ class InstallController{
 			/*=============================================
 			Creamos la tabla pages
 			=============================================*/
-			
+
 			$sqlPages = "CREATE TABLE pages ( 
 				id_page INT NOT NULL AUTO_INCREMENT,
 				title_page TEXT NULL DEFAULT NULL,
@@ -101,7 +106,7 @@ class InstallController{
 			/*=============================================
 			Creamos la tabla modules
 			=============================================*/
-			
+
 			$sqlModules = "CREATE TABLE modules ( 
 				id_module INT NOT NULL AUTO_INCREMENT,
 				id_page_module INT NULL DEFAULT '0',
@@ -120,7 +125,7 @@ class InstallController{
 			/*=============================================
 			Creamos la tabla columns
 			=============================================*/
-			
+
 			$sqlColumns = "CREATE TABLE columns ( 
 				id_column INT NOT NULL AUTO_INCREMENT,
 				id_module_column INT NULL DEFAULT '0',
@@ -173,13 +178,14 @@ class InstallController{
 
 			$stmtFiles = InstallController::connect()->prepare($sqlFiles);
 
-			if($stmtAdmins->execute() && 
-			   $stmtPages->execute() &&
-			   $stmtModules->execute() &&
-			   $stmtColumns->execute() &&
-			   $stmtFolders->execute() &&
-			   $stmtFiles->execute()
-			){
+			if (
+				$stmtAdmins->execute() &&
+				$stmtPages->execute() &&
+				$stmtModules->execute() &&
+				$stmtColumns->execute() &&
+				$stmtFolders->execute() &&
+				$stmtFiles->execute()
+			) {
 
 				/*=============================================
 				Creamos el super administrador
@@ -191,7 +197,7 @@ class InstallController{
 					"email_admin" => trim($_POST["email_admin"]),
 					"password_admin" => trim($_POST["password_admin"]),
 					"rol_admin" => "superadmin",
-					"permissions_admin" => '{"todo":"on"}',		
+					"permissions_admin" => '{"todo":"on"}',
 					"title_admin" => trim($_POST["title_admin"]),
 					"symbol_admin" => trim($_POST["symbol_admin"]),
 					"font_admin" => trim($_POST["font_admin"]),
@@ -200,7 +206,7 @@ class InstallController{
 					"date_created_admin" => date("Y-m-d")
 				);
 
-				$register = CurlController::request($url,$method,$fields);
+				$register = CurlController::request($url, $method, $fields);
 
 				/*=============================================
 				Creamos la página de inicio
@@ -217,7 +223,7 @@ class InstallController{
 					"date_created_page" => date("Y-m-d")
 				);
 
-				$homePage = CurlController::request($url,$method,$fields);
+				$homePage = CurlController::request($url, $method, $fields);
 
 				/*=============================================
 				Creamos la página de administradores
@@ -234,7 +240,7 @@ class InstallController{
 					"date_created_page" => date("Y-m-d")
 				);
 
-				$adminPage = CurlController::request($url,$method,$fields);
+				$adminPage = CurlController::request($url, $method, $fields);
 
 				/*=============================================
 				Creamos la página de archivos
@@ -251,7 +257,7 @@ class InstallController{
 					"date_created_page" => date("Y-m-d")
 				);
 
-				$filesPage = CurlController::request($url,$method,$fields);
+				$filesPage = CurlController::request($url, $method, $fields);
 
 				/*=============================================
 				Creamos el módulo Breadcrumb para la página de administradores
@@ -263,10 +269,10 @@ class InstallController{
 					"id_page_module" => $adminPage->results->lastId,
 					"type_module" => "breadcrumbs",
 					"title_module" => "Administradores",
-					"date_created_module"  => date("Y-m-d")
+					"date_created_module" => date("Y-m-d")
 				);
 
-				$breadcrumbModule = CurlController::request($url,$method,$fields);
+				$breadcrumbModule = CurlController::request($url, $method, $fields);
 
 				/*=============================================
 				Creamos el módulo Tabla para la página de administradores
@@ -280,10 +286,10 @@ class InstallController{
 					"title_module" => "admins",
 					"suffix_module" => "admin",
 					"editable_module" => 0,
-					"date_created_module"  => date("Y-m-d")
+					"date_created_module" => date("Y-m-d")
 				);
 
-				$tableModule = CurlController::request($url,$method,$fields);
+				$tableModule = CurlController::request($url, $method, $fields);
 
 				/*=============================================
 				Creamos el folder de servidor
@@ -295,149 +301,150 @@ class InstallController{
 					"name_folder" => "Server",
 					"size_folder" => "200000000000",
 					"max_upload_folder" => "500000000",
-					"url_folder" => $_SERVER["REQUEST_SCHEME"]."://".$_SERVER["SERVER_NAME"],
-					"date_created_folder"  => date("Y-m-d")
+					"url_folder" => $_SERVER["REQUEST_SCHEME"] . "://" . $_SERVER["SERVER_NAME"],
+					"date_created_folder" => date("Y-m-d")
 				);
 
-				$serverFolder = CurlController::request($url,$method,$fields);
+				$serverFolder = CurlController::request($url, $method, $fields);
 
-				if($register->status == 200 && 
-				   $homePage->status == 200 &&
-				   $adminPage->status == 200 &&
-				   $filesPage->status == 200 &&
-				   $breadcrumbModule->status == 200 &&
-				   $tableModule->status == 200 &&
-				   $serverFolder->status == 200
-				){
+				if (
+					$register->status == 200 &&
+					$homePage->status == 200 &&
+					$adminPage->status == 200 &&
+					$filesPage->status == 200 &&
+					$breadcrumbModule->status == 200 &&
+					$tableModule->status == 200 &&
+					$serverFolder->status == 200
+				) {
 
 					/*=============================================
 					Creamos cada una de las columnas de la tabla de administradores
 					=============================================*/
 
 					$columns = array(
-						[	
+						[
 							"id_module_column" => $tableModule->results->lastId,
-							"title_column" =>  "rol_admin",
+							"title_column" => "rol_admin",
 							"alias_column" => "rol",
-							"type_column" =>  "select",
-							"matrix_column"  => "superadmin,admin,editor",
+							"type_column" => "select",
+							"matrix_column" => "superadmin,admin,editor",
 							"visible_column" => 1,
 							"date_created_column" => date("Y-m-d")
 						],
-						[	
+						[
 							"id_module_column" => $tableModule->results->lastId,
-							"title_column" =>  "permissions_admin",
+							"title_column" => "permissions_admin",
 							"alias_column" => "permisos",
-							"type_column" =>  "object",
-							"matrix_column"  => "",
+							"type_column" => "object",
+							"matrix_column" => "",
 							"visible_column" => 1,
 							"date_created_column" => date("Y-m-d")
 						],
-						[	
+						[
 							"id_module_column" => $tableModule->results->lastId,
-							"title_column" =>  "email_admin",
+							"title_column" => "email_admin",
 							"alias_column" => "email",
-							"type_column" =>  "email",
-							"matrix_column"  => "",
+							"type_column" => "email",
+							"matrix_column" => "",
 							"visible_column" => 1,
 							"date_created_column" => date("Y-m-d")
 						],
-						[	
+						[
 							"id_module_column" => $tableModule->results->lastId,
-							"title_column" =>  "password_admin",
+							"title_column" => "password_admin",
 							"alias_column" => "pass",
-							"type_column" =>  "password",
-							"matrix_column"  => "",
+							"type_column" => "password",
+							"matrix_column" => "",
 							"visible_column" => 0,
 							"date_created_column" => date("Y-m-d")
 						],
-						[	
+						[
 							"id_module_column" => $tableModule->results->lastId,
-							"title_column" =>  "token_admin",
+							"title_column" => "token_admin",
 							"alias_column" => "token",
-							"type_column" =>  "text",
-							"matrix_column"  => "",
+							"type_column" => "text",
+							"matrix_column" => "",
 							"visible_column" => 0,
 							"date_created_column" => date("Y-m-d")
 						],
-						[	
+						[
 							"id_module_column" => $tableModule->results->lastId,
-							"title_column" =>  "token_exp_admin",
+							"title_column" => "token_exp_admin",
 							"alias_column" => "expiración",
-							"type_column" =>  "text",
-							"matrix_column"  => "",
+							"type_column" => "text",
+							"matrix_column" => "",
 							"visible_column" => 0,
 							"date_created_column" => date("Y-m-d")
 						],
-						[	
+						[
 							"id_module_column" => $tableModule->results->lastId,
-							"title_column" =>  "status_admin",
+							"title_column" => "status_admin",
 							"alias_column" => "estado",
-							"type_column" =>  "boolean",
-							"matrix_column"  => "",
+							"type_column" => "boolean",
+							"matrix_column" => "",
 							"visible_column" => 1,
 							"date_created_column" => date("Y-m-d")
 						],
-						[	
+						[
 							"id_module_column" => $tableModule->results->lastId,
-							"title_column" =>  "title_admin",
+							"title_column" => "title_admin",
 							"alias_column" => "título",
-							"type_column" =>  "text",
-							"matrix_column"  => "",
+							"type_column" => "text",
+							"matrix_column" => "",
 							"visible_column" => 0,
 							"date_created_column" => date("Y-m-d")
 						],
-						[	
+						[
 							"id_module_column" => $tableModule->results->lastId,
-							"title_column" =>  "symbol_admin",
+							"title_column" => "symbol_admin",
 							"alias_column" => "simbolo",
-							"type_column" =>  "text",
-							"matrix_column"  => "",
+							"type_column" => "text",
+							"matrix_column" => "",
 							"visible_column" => 0,
 							"date_created_column" => date("Y-m-d")
 						],
-						[	
+						[
 							"id_module_column" => $tableModule->results->lastId,
-							"title_column" =>  "font_admin",
+							"title_column" => "font_admin",
 							"alias_column" => "tipografía",
-							"type_column" =>  "text",
-							"matrix_column"  => "",
+							"type_column" => "text",
+							"matrix_column" => "",
 							"visible_column" => 0,
 							"date_created_column" => date("Y-m-d")
 						],
-						[	
+						[
 							"id_module_column" => $tableModule->results->lastId,
-							"title_column" =>  "color_admin",
+							"title_column" => "color_admin",
 							"alias_column" => "color",
-							"type_column" =>  "text",
-							"matrix_column"  => "",
+							"type_column" => "text",
+							"matrix_column" => "",
 							"visible_column" => 0,
 							"date_created_column" => date("Y-m-d")
 						],
-						[	
+						[
 							"id_module_column" => $tableModule->results->lastId,
-							"title_column" =>  "back_admin",
+							"title_column" => "back_admin",
 							"alias_column" => "fondo",
-							"type_column" =>  "text",
-							"matrix_column"  => "",
+							"type_column" => "text",
+							"matrix_column" => "",
 							"visible_column" => 0,
 							"date_created_column" => date("Y-m-d")
 						],
-						[	
+						[
 							"id_module_column" => $tableModule->results->lastId,
-							"title_column" =>  "scode_admin",
+							"title_column" => "scode_admin",
 							"alias_column" => "seguridad",
-							"type_column" =>  "text",
-							"matrix_column"  => "",
+							"type_column" => "text",
+							"matrix_column" => "",
 							"visible_column" => 0,
 							"date_created_column" => date("Y-m-d")
 						],
-						[	
+						[
 							"id_module_column" => $tableModule->results->lastId,
-							"title_column" =>  "chatgpt_admin",
+							"title_column" => "chatgpt_admin",
 							"alias_column" => "chatgpt",
-							"type_column" =>  "object",
-							"matrix_column"  => "",
+							"type_column" => "object",
+							"matrix_column" => "",
 							"visible_column" => 0,
 							"date_created_column" => date("Y-m-d")
 						]
@@ -446,30 +453,30 @@ class InstallController{
 					$countColumns = 0;
 
 					foreach ($columns as $key => $value) {
-						
+
 						$url = "columns?token=no&except=id_column";
 						$method = "POST";
 						$fields = array(
 							"id_module_column" => $value["id_module_column"],
-							"title_column" =>  $value["title_column"],
+							"title_column" => $value["title_column"],
 							"alias_column" => $value["alias_column"],
-							"type_column" =>  $value["type_column"],
-							"matrix_column"  => $value["matrix_column"],
+							"type_column" => $value["type_column"],
+							"matrix_column" => $value["matrix_column"],
 							"visible_column" => $value["visible_column"],
 							"date_created_column" => $value["date_created_column"]
 						);
 
-						$createColumn = CurlController::request($url,$method,$fields);
+						$createColumn = CurlController::request($url, $method, $fields);
 
-						if($createColumn->status == 200){
+						if ($createColumn->status == 200) {
 
 							$countColumns++;
 
 						}
-							
+
 					}
 
-					if($countColumns == count($columns)){
+					if ($countColumns == count($columns)) {
 
 						echo '<script>
 						fncMatPreloader("off");
@@ -477,11 +484,11 @@ class InstallController{
 						fncSweetAlert("success","La instalación se realizó exitosamente",setTimeout(()=>location.reload(),1250));
 						</script>';
 
-					}	
+					}
 
 				}
 
-			}		
+			}
 
 		}
 
@@ -491,7 +498,8 @@ class InstallController{
 	Validar existencia de una tabla en la bd
 	=============================================*/
 
-	static public function getTable($table){
+	static public function getTable($table)
+	{
 
 		$database = InstallController::infoDatabase()["database"];
 		$validate = InstallController::connect()->query("SELECT COLUMN_NAME AS item FROM information_schema.columns WHERE table_schema = '$database' AND table_name = '$table'")->fetchAll(PDO::FETCH_OBJ);
@@ -500,11 +508,11 @@ class InstallController{
 		Validamos existencia de la tabla
 		=============================================*/
 
-		if(!empty($validate)){
+		if (!empty($validate)) {
 
 			return 200;
-		
-		}else{
+
+		} else {
 
 			return 404;
 		}
@@ -515,7 +523,8 @@ class InstallController{
 	Traernos las tablas de la bd
 	=============================================*/
 
-	static public function getTables(){
+	static public function getTables()
+	{
 
 		$tables = InstallController::connect()->query("SHOW FULL TABLES")->fetchAll(PDO::FETCH_COLUMN);
 
@@ -523,7 +532,7 @@ class InstallController{
 		Validamos existencias de las tablas
 		=============================================*/
 
-		if(!empty($tables)){
+		if (!empty($tables)) {
 
 			return $tables;
 		}

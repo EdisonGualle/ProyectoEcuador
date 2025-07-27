@@ -71,7 +71,7 @@
 
             </div>
 
-            <div class="form-group mb-3">
+            <!-- <div class="form-group mb-3">
 
               <label for="symbol_admin">Símbolo del Dashboard <sup>*</sup></label>
 
@@ -87,7 +87,7 @@
               <div class="valid-feedback">Válido.</div>
               <div class="invalid-feedback">Campo inválido.</div>
 
-            </div>
+            </div> -->
 
             <div class="form-group mb-3">
 
@@ -139,7 +139,7 @@
         <div class="modal-footer d-flex justify-content-between">
           
           <div><button type="button" class="btn btn-dark rounded" data-bs-dismiss="modal">Cerrar</button></div>
-          <div><button type="submit" class="btn btn-dark backColor rounded">Guardar</button></div>
+          <div><button type="submit" class="btn btn-default backColor rounded">Guardar</button></div>
           
         </div>
 

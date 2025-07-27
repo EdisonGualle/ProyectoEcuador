@@ -4,24 +4,32 @@
 Traemos columnas de la tabla
 =============================================*/
 
-$url = "columns?linkTo=id_module_column&equalTo=".$module->id_module;
+$url = "columns?linkTo=id_module_column&equalTo=" . $module->id_module;
 $method = "GET";
 $fields = array();
 
-$columns = CurlController::request($url,$method,$fields);
+$columns = CurlController::request($url, $method, $fields);
 
-if($columns->status == 200){
+$selectedRaffle = $_GET['id_raffle_' . $module->suffix_module] ?? null;
 
+
+//  Detectar si estamos en módulo ventas u órdenes
+$isVentasOrOrdenes = in_array($module->title_module, ['sales', 'orders']);
+
+if ($isVentasOrOrdenes) {
+	//  Obtener sorteos disponibles
+	$url = "raffles?select=id_raffle,tittle&orderBy=id_raffle&orderMode=DESC";
+	$sorteos = CurlController::request($url, "GET", []);
+}
+
+if ($columns->status == 200) {
 	$columns = $columns->results;
-
-}else{
-
+} else {
 	$columns = array();
-	
 }
 
 /*=============================================
-Agregar las columnas a los datos del módulo
+Agregar las columnas al módulo
 =============================================*/
 $module->columns = $columns;
 
@@ -31,31 +39,54 @@ Traemos contenido de la tabla
 $limit = 10;
 $totalPages = 0;
 $totalData = 0;
-$url = $module->title_module."?orderBy=id_".$module->suffix_module."&orderMode=DESC&startAt=0&endAt=".$limit;
-$method = "GET";
-$fields = array();
 
-$table = CurlController::request($url,$method,$fields);
+$url = $module->title_module . "?orderBy=id_" . $module->suffix_module . "&orderMode=DESC&startAt=0&endAt=" . $limit;
 
-if($table->status == 200){
-
-	$table = $table->results;
-
-	/*=============================================
-	Traemos contenido total de la tabla
-	=============================================*/
-	
-	$url = $module->title_module."?select=id_".$module->suffix_module;
-	$totalData = CurlController::request($url,$method,$fields)->total;
-	$totalPages = ceil($totalData/$limit);
-
-}else{ 
-
-	$table = array();
+if ($isVentasOrOrdenes && !empty($selectedRaffle)) {
+	$url .= "&linkTo=id_raffle_" . $module->suffix_module . "&equalTo=" . $selectedRaffle;
 }
 
-$totalColumns = 3;
+$table = CurlController::request($url, $method, $fields);
 
+if ($table->status == 200) {
+	// Obtener total filtrado
+	$urlCount = $module->title_module . "?select=id_" . $module->suffix_module;
+	if ($isVentasOrOrdenes && !empty($selectedRaffle)) {
+		$urlCount .= "&linkTo=id_raffle_" . $module->suffix_module . "&equalTo=" . $selectedRaffle;
+	}
+	$totalData = CurlController::request($urlCount, $method, $fields)->total;
+	$totalPages = ceil($totalData / $limit);
+
+	// Volvemos a pedir todos los registros (para exportar todo)
+	$urlAll = $module->title_module . "?orderBy=id_" . $module->suffix_module . "&orderMode=DESC&startAt=0&endAt=" . $totalData;
+	if ($isVentasOrOrdenes && !empty($selectedRaffle)) {
+		$urlAll .= "&linkTo=id_raffle_" . $module->suffix_module . "&equalTo=" . $selectedRaffle;
+	}
+	$tableFull = CurlController::request($urlAll, $method, $fields);
+
+	$table = ($tableFull->status == 200) ? $tableFull->results : [];
+} else {
+	$table = [];
+}
+
+
+$totalColumns = 1; // para la columna "#"
+
+if ($_SESSION["admin"]->rol_admin == "superadmin" || $module->editable_module == 1) {
+	$totalColumns++; // Sel.
+}
+
+if (!empty($columns)) {
+	foreach ($columns as $col) {
+		if ($col->visible_column == 1) {
+			$totalColumns++;
+		}
+	}
+}
+
+if ($_SESSION["admin"]->rol_admin == "superadmin" || $module->editable_module == 1) {
+	$totalColumns++; // Acciones
+}
 ?>
 
 <!--===========================================
@@ -65,563 +96,645 @@ Cargamos el gestor de datos
 <?php if (!empty($routesArray[1]) && $routesArray[1] == "manage"): ?>
 
 
-	<?php 
+	<?php
 
 	include "manage/manage.php";
 	include "views/modules/modals/files.php";
-	
+
 	?>
 
-<!--===========================================
+	<!--===========================================
 Cargamos el módulo tabla
 =============================================-->
 
 <?php else: ?>
 
-<div class="<?php if ($module->width_module == "100"): ?> col-lg-12 <?php endif ?><?php if ($module->width_module == "75"): ?> col-lg-9 <?php endif ?><?php if ($module->width_module == "50"): ?> col-lg-6 <?php endif ?><?php if ($module->width_module == "33"): ?> col-lg-4 <?php endif ?><?php if ($module->width_module == "25"): ?> col-lg-3 <?php endif ?> col-12 mb-3 position-relative">
+	<div class="<?php if ($module->width_module == "100"): ?> col-lg-12 <?php endif ?><?php if ($module->width_module == "75"): ?> col-lg-9 <?php endif ?><?php if ($module->width_module == "50"): ?> col-lg-6 <?php endif ?><?php if ($module->width_module == "33"): ?> col-lg-4 <?php endif ?><?php if ($module->width_module == "25"): ?> col-lg-3 <?php endif ?> col-12 mb-3 position-relative">
 
-	<?php if ($_SESSION["admin"]->rol_admin == "superadmin"): ?>
+		<?php if ($_SESSION["admin"]->rol_admin == "superadmin"): ?>
 
-		<div class="position-absolute border rounded bg-white" style="top:0px; right:12px; z-index:100">
-			
-			<button type="button" class="btn btn-sm text-muted rounded m-0 px-1 py-0 border-0 myModule" item='<?php echo json_encode($module) ?>' idPage="<?php echo $page->results[0]->id_page ?>">
-				<i class="bi bi-pencil-square"></i>
-			</button>
+			<div class="position-absolute border rounded bg-white" style="top:0px; right:12px; z-index:100">
 
-			<button type="button" class="btn btn-sm text-muted rounded m-0 px-1 py-0 border-0 deleteModule" idModule=<?php echo base64_encode($module->id_module) ?> >
-				<i class="bi bi-trash"></i>
-			</button>
+				<button type="button" class="btn btn-sm text-muted rounded m-0 px-1 py-0 border-0 myModule" item='<?php echo json_encode($module) ?>' idPage="<?php echo $page->results[0]->id_page ?>">
+					<i class="bi bi-pencil-square"></i>
+				</button>
+
+				<button type="button" class="btn btn-sm text-muted rounded m-0 px-1 py-0 border-0 deleteModule" idModule=<?php echo base64_encode($module->id_module) ?>>
+					<i class="bi bi-trash"></i>
+				</button>
 
 
-		</div>
-		
-	<?php endif ?>
-	
-	<div class="card rounded p-3 w-100" id="cardTable">
+			</div>
 
-		<!--=========================================
+		<?php endif ?>
+
+		<div class="card rounded p-3 w-100" id="cardTable">
+
+			<!--=========================================
         Cabecera de la tabla
         ===========================================-->
-		
-		<div class="card-header bg-white">
-			
-			<div class="d-lg-flex justify-content-between">
 
-				<!--=========================================
+			<div class="card-header bg-white">
+
+				<div class="d-lg-flex justify-content-between">
+
+					<!--=========================================
 		        Botón para crear un nuevo registro
 		        ===========================================-->
-				
-				<div class="mb-3">
 
-					<?php if ($_SESSION["admin"]->rol_admin == "superadmin" || $module->editable_module == 1): ?>
-
-						<a href="/<?php echo $module->url_page ?>/manage" class="btn btn-default btn-sm rounded backColor px-3 py-2">Agregar registro
-						</a>
-						
-					<?php endif ?>
-					
-					
-
-				</div>
-
-				<div class="mb-3">
-					
-					<ul class="nav justify-content-lg-end">
-
-						<!--=========================================
-				        Botón para rango de fechas
-				        ===========================================-->
-						
-						<li class="nav-item p-0 me-2 position-relative" style="bottom:5px">
-							
-							<button type="button" class="btn small" id="daterange-btn">
-								
-								<i class="far fa-calendar-alt me-1"></i>
-
-								<small>
-									<span id="startDate"><?php echo date("Y-m-d", 0) ?></span>
-									-
-									<span id="endDate"><?php echo date("Y-m-d") ?></span>
-									<i class="fas fa-caret-down ms-1"></i>
-								</small>
-
-							</button>
-
-						</li>
-
+					<div class="mb-3">
 						<?php if ($_SESSION["admin"]->rol_admin == "superadmin" || $module->editable_module == 1): ?>
 
-						<li class="nav-item p-0">
+							<div class="mb-2 d-flex gap-2">
+
+								<!-- Botón Agregar registro -->
+								<a href="/<?php echo $module->url_page ?>/manage" class="btn btn-default btn-sm rounded backColor px-3 py-2 d-inline-block">
+									Agregar registro
+								</a>
+
+
+							</div>
+
+						<?php endif; ?>
+
+					</div>
+
+
+
+
+					<div class="mb-3">
+
+						<ul class="nav justify-content-lg-between align-items-center gap-3">
+
+							<?php if ($isVentasOrOrdenes): ?>
+								<form method="GET" class="d-flex align-items-center gap-2 flex-nowrap">
+									<input type="hidden" name="page" value="<?php echo $module->url_page ?>">
+									<label for="id_raffle_<?php echo $module->suffix_module ?>" class="form-label mb-0" style="white-space: nowrap;">Filtrar por sorteo:</label>
+									<select name="id_raffle_<?php echo $module->suffix_module ?>" id="id_raffle_<?php echo $module->suffix_module ?>" class="form-select form-select-sm" onchange="this.form.submit()" style="width: auto; min-width: 160px;">
+										<option value="">-- Todos --</option>
+										<?php if (!empty($sorteos->results)): ?>
+											<?php foreach ($sorteos->results as $sorteo): ?>
+												<option value="<?php echo $sorteo->id_raffle ?>" <?php if ($selectedRaffle == $sorteo->id_raffle) echo 'selected'; ?>>
+													<?php echo urldecode($sorteo->tittle) ?>
+												</option>
+											<?php endforeach ?>
+										<?php else: ?>
+											<option disabled>(No hay sorteos disponibles)</option>
+										<?php endif ?>
+									</select>
+								</form>
+
+							<?php endif; ?>
+
 
 							<!--=========================================
+				        Botón para rango de fechas
+				        ===========================================-->
+
+							<li class="nav-item p-0 me-2 position-relative" style="bottom:5px">
+
+								<button type="button" class="btn small" id="daterange-btn">
+
+									<i class="far fa-calendar-alt me-1"></i>
+
+									<small>
+										<span id="startDate"><?php echo date("Y-m-d", 0) ?></span>
+										-
+										<span id="endDate"><?php echo date("Y-m-d") ?></span>
+										<i class="fas fa-caret-down ms-1"></i>
+									</small>
+
+								</button>
+
+							</li>
+
+							<?php if ($_SESSION["admin"]->rol_admin == "superadmin" || $module->editable_module == 1): ?>
+
+								<li class="nav-item p-0">
+
+									<!--=========================================
 				        	Selección masiva
 				        	===========================================-->
 
-							<button type="button" class="btn btn-sm bg-blue rounded border-0 checkAllItems" mode="false">
-								<i class="bi bi-check2-square"></i>
-							</button>
+									<button type="button" class="btn btn-sm bg-blue rounded border-0 checkAllItems" mode="false">
+										<i class="bi bi-check2-square"></i>
+									</button>
 
-							<!--=========================================
+									<!--=========================================
 				        	Cambio Selección masiva
 				        	===========================================-->
 
-				        	<?php 
+									<?php
 
-				        	if (!empty($columns) && in_array("select", array_column($columns,"type_column"))){
+									if (!empty($columns) && in_array("select", array_column($columns, "type_column"))) {
 
-				        		foreach ($columns as $key => $value) {
+										foreach ($columns as $key => $value) {
 
-				        			if($value->type_column == "select"){
+											if ($value->type_column == "select") {
 
-				        				echo '<button type="button" class="btn btn-sm bg-indigo rounded border-0 mySelects" column="'.$value->title_column.'" matrix="'.$value->matrix_column.'"><i class="bi bi-arrow-down-up"></i></button>';
+												echo '<button type="button" class="btn btn-sm bg-indigo rounded border-0 mySelects" column="' . $value->title_column . '" matrix="' . $value->matrix_column . '"><i class="bi bi-arrow-down-up"></i></button>';
 
-				        				break;
-				        			}
+												break;
+											}
+										}
+									}
 
-				        		}
+									?>
 
-				        	}
-
-				        	?>
-
-							<!--=========================================
+									<!--=========================================
 				        	Cambio Boleano masivo
 				        	===========================================-->
 
-				        	<?php 
+									<?php
 
-				        	if (!empty($columns) && in_array("boolean", array_column($columns,"type_column"))){
+									if (!empty($columns) && in_array("boolean", array_column($columns, "type_column"))) {
 
-				        		foreach ($columns as $key => $value) {
+										foreach ($columns as $key => $value) {
 
-				        			if($value->type_column == "boolean"){
+											if ($value->type_column == "boolean") {
 
-				        				echo '<button type="button" class="btn btn-sm bg-purple rounded border-0 myBooleans" column="'.$value->title_column.'"><i class="bi bi-arrow-left-right"></i></button>';
+												echo '<button type="button" class="btn btn-sm bg-purple rounded border-0 myBooleans" column="' . $value->title_column . '"><i class="bi bi-arrow-left-right"></i></button>';
 
-				        				break;
-				        			}
+												break;
+											}
+										}
+									}
 
-				        		}
+									?>
 
-				        	}
-
-				        	?>
-
-							<!--=========================================
+									<!--=========================================
 				        	Eliminación masiva
 				        	===========================================-->
 
-							<button type="button" class="btn btn-sm bg-maroon rounded border-0 deleteAllItems">
-								<i class="bi bi-trash"></i>
-							</button>
+									<button type="button" class="btn btn-sm bg-maroon rounded border-0 deleteAllItems">
+										<i class="bi bi-trash"></i>
+									</button>
 
-						</li>
+									<?php if (!empty($table)): ?>
+										<!-- Botón Exportar Excel -->
+										<button type="button" class="btn btn-sm bg-success rounded border-0 text-white exportExcelBtn" title="Exportar Excel">
+											<i class="fas fa-file-excel"></i>
+										</button>
 
-						<?php endif ?>
+										<!-- Botón Exportar PDF -->
+										<button type="button" class="btn btn-sm bg-danger rounded border-0 text-white exportPdfBtn" title="Exportar PDF">
+											<i class="fas fa-file-pdf"></i>
+										</button>
+									<?php endif; ?>
 
-					</ul>
+
+
+								</li>
+
+							<?php endif ?>
+
+						</ul>
+
+					</div>
 
 				</div>
 
 			</div>
 
-		</div>
-
-		<!--=========================================
+			<!--=========================================
         Cuerpo de la tabla
         ===========================================-->
 
-		<div class="card-body">
+			<div class="card-body">
 
-			<!--========================================
+				<!--========================================
 			Filtros Iniciales
 			=========================================-->
 
-			<input type="hidden" id="contentModule" value='<?php echo json_encode($module) ?>'>
-			<input type="hidden" id="orderByTable" value="id_<?php echo $module->suffix_module ?>">
-			<input type="hidden" id="orderModeTable" value="DESC">
-		    <input type="hidden" id="limitTable" value="<?php echo $limit ?>">
-		    <input type="hidden" id="rolAdmin" value="<?php echo $_SESSION["admin"]->rol_admin ?>">
-		    <input type="hidden" id="searchTable" value="">
-		    <input type="hidden" id="between1" value="<?php echo date("Y-m-d", 0) ?>">
-		    <input type="hidden" id="between2" value="<?php echo date("Y-m-d") ?>">
-		    <input type="hidden" id="checkItems" value="" table="<?php echo $module->title_module ?>" suffix="<?php echo $module->suffix_module ?>">
-
-			<!--=========================================
-	        Bloque de filtros
-	        ===========================================-->		
-
-			<div class="d-lg-flex justify-content-lg-between">
+				<input type="hidden" id="contentModule" value='<?php echo json_encode($module) ?>'>
+				<input type="hidden" id="orderByTable" value="id_<?php echo $module->suffix_module ?>">
+				<input type="hidden" id="orderModeTable" value="DESC">
+				<input type="hidden" id="limitTable" value="<?php echo $limit ?>">
+				<input type="hidden" id="rolAdmin" value="<?php echo $_SESSION["admin"]->rol_admin ?>">
+				<input type="hidden" id="searchTable" value="">
+				<input type="hidden" id="between1" value="<?php echo date("Y-m-d", 0) ?>">
+				<input type="hidden" id="between2" value="<?php echo date("Y-m-d") ?>">
+				<input type="hidden" id="checkItems" value="" table="<?php echo $module->title_module ?>" suffix="<?php echo $module->suffix_module ?>">
 
 				<!--=========================================
+	        Bloque de filtros
+	        ===========================================-->
+
+				<div class="d-lg-flex justify-content-lg-between">
+
+					<!--=========================================
 		        Filtar cantidad de registros
 		        ===========================================-->
-				
-				<div class="mb-3 row">
-					
-					<div class="col mt-1">
-						<small>Mostrar</small>
+
+					<div class="mb-3 row">
+
+						<div class="col mt-1">
+							<small>Mostrar</small>
+						</div>
+
+						<div class="col p-0">
+							<select class="form-select form-select-sm rounded changeLimit" style="width:65px">
+								<option value="10" class="small">10</option>
+								<option value="25" class="small">25</option>
+								<option value="50" class="small">50</option>
+								<option value="100" class="small">100</option>
+							</select>
+						</div>
+
+						<div class="col mt-1">
+							<small>Registros</small>
+						</div>
+
 					</div>
 
-					<div class="col p-0">
-						<select class="form-select form-select-sm rounded changeLimit" style="width:65px">
-						  <option value="10" class="small">10</option>
-						  <option value="25" class="small">25</option>
-						  <option value="50" class="small">50</option>
-						  <option value="100" class="small">100</option>
-						</select>
-					</div>
+					<!--=========================================
+		        Filtar por búsqueda de registros
+		        ===========================================-->
 
-					<div class="col mt-1">
-						<small>Registros</small>
+					<div class="mb-3">
+
+						<input type="text" id="searchItem" class="form-control rounded form-control-sm" placeholder="Buscar...">
+
 					</div>
 
 				</div>
 
 				<!--=========================================
-		        Filtar por búsqueda de registros
-		        ===========================================-->
-
-		        <div class="mb-3">
-		        	
-		        	<input type="text" id="searchItem" class="form-control rounded form-control-sm" placeholder="Buscar...">
-
-		        </div>
-
-			</div>
-
-			<!--=========================================
 	        Bloque de tabla
-	        ===========================================-->	
+	        ===========================================-->
 
-	        <div class="table-responsive">
-	        	
-	        	<table class="table" width="100%">
-	        		
-	        		<thead>
-	        			
-	        			<tr>
+				<div class="table-responsive">
 
-	        				<th class="position-relative"># <i class="bi bi-arrow-down-short position-absolute orderFilter" orderBy="id_<?php echo $module->suffix_module ?>" orderMode="ASC" style="cursor: pointer;"></i></th>
-					        
-	        				<?php if ($_SESSION["admin"]->rol_admin == "superadmin" || $module->editable_module == 1): ?>
-					        <th>Sel.</th>  
-					        <?php endif ?>
-					       
-					        <?php if (!empty($columns)): ?>
+					<table class="table exportable" width="100%">
 
-					        	<?php foreach ($columns as $index => $item): ?>
+						<thead>
 
-					        		<?php if ($item->visible_column == 1): $totalColumns++ ?>
-					        			
-					        			<th class="text-capitalize position-relative">
-					        				<?php echo $item->alias_column ?>
+							<tr>
 
-					        				<?php if ($item->type_column == "text" || 
-					        						  $item->type_column == "textarea" || 
-					        						  $item->type_column == "select" ||
-					        						  $item->type_column == "int" || 
-					        						  $item->type_column == "double" ||
-					        						  $item->type_column == "money" ||
-					        						  $item->type_column == "date" ||
-					        						  $item->type_column == "time" || 
-					        						  $item->type_column == "datetime" || 
-					        						  $item->type_column == "link" ||
-					        						  $item->type_column == "order"    ): ?>
-					        					<i class="bi bi-arrow-down-short position-absolute orderFilter" orderBy="<?php echo $item->title_column ?>" orderMode="ASC" style="cursor: pointer;"></i>
-					        				<?php endif ?>
-					        					
-					        			</th>	
+								<th class="position-relative"># <i class="bi bi-arrow-down-short position-absolute orderFilter" orderBy="id_<?php echo $module->suffix_module ?>" orderMode="ASC" style="cursor: pointer;"></i></th>
 
-					        		<?php endif ?>
-					        		
-					        	<?php endforeach ?>
-					        <?php endif ?>
+								<?php if ($_SESSION["admin"]->rol_admin == "superadmin" || $module->editable_module == 1): ?>
+									<th>Sel.</th>
+								<?php endif ?>
 
-					        <?php if ($_SESSION["admin"]->rol_admin == "superadmin" || $module->editable_module == 1): ?>
+								<?php if (!empty($columns)): ?>
 
-					        	<th class="text-center">Acciones</th>
+									<?php foreach ($columns as $index => $item): ?>
 
-					    	<?php endif ?>
-  
-	        			</tr>
-	        		</thead>
+										<?php if ($item->visible_column == 1): $totalColumns++ ?>
 
-	        		<tbody class="small" id="loadTable">
+											<th class="text-capitalize position-relative">
+												<?php echo $item->alias_column ?>
 
-	        			<?php if (!empty($table)): ?>
+												<?php if (
+													$item->type_column == "text" ||
+													$item->type_column == "textarea" ||
+													$item->type_column == "select" ||
+													$item->type_column == "int" ||
+													$item->type_column == "double" ||
+													$item->type_column == "money" ||
+													$item->type_column == "date" ||
+													$item->type_column == "time" ||
+													$item->type_column == "datetime" ||
+													$item->type_column == "link" ||
+													$item->type_column == "order"
+												): ?>
+													<i class="bi bi-arrow-down-short position-absolute orderFilter" orderBy="<?php echo $item->title_column ?>" orderMode="ASC" style="cursor: pointer;"></i>
+												<?php endif ?>
 
-	        				<?php foreach (json_decode(json_encode($table),true) as $key => $value): ?>
+											</th>
 
-        					<tr>
+										<?php endif ?>
 
-        						<td><?php echo ($key+1) ?></td>
+									<?php endforeach ?>
+								<?php endif ?>
 
-        						<?php if ($_SESSION["admin"]->rol_admin == "superadmin" || $module->editable_module == 1): ?>
-        						
-        						<td>
-		        					<div class="form-check formCheck">
-		        						<input class="form-check-input checkItem" type="checkbox" idItem="<?php echo base64_encode($value["id_".$module->suffix_module]) ?>">
-		        					</div>
-		        				</td>
+								<?php if ($_SESSION["admin"]->rol_admin == "superadmin" || $module->editable_module == 1): ?>
 
-		        				<?php endif ?>
+									<th class="text-center">Acciones</th>
 
-	        					<?php foreach ($columns as $index => $item): ?>
+								<?php endif ?>
 
-	        						<?php if ($item->visible_column == 1): ?>
-	        								
-		        						<td>
+							</tr>
+						</thead>
 
-		        						<?php 
+						<tbody class="small" id="loadTable">
 
-	        							/*=============================================
+							<?php if (!empty($table)): ?>
+
+								<?php foreach (json_decode(json_encode($table), true) as $key => $value): ?>
+
+									<tr>
+
+										<td><?php echo ($key + 1) ?></td>
+
+										<?php if ($_SESSION["admin"]->rol_admin == "superadmin" || $module->editable_module == 1): ?>
+
+											<td>
+												<div class="form-check formCheck">
+													<input class="form-check-input checkItem" type="checkbox" idItem="<?php echo base64_encode($value["id_" . $module->suffix_module]) ?>">
+												</div>
+											</td>
+
+										<?php endif ?>
+
+										<?php foreach ($columns as $index => $item): ?>
+
+											<?php if ($item->visible_column == 1): ?>
+
+												<td>
+
+													<?php
+
+													/*=============================================
 										Contenido tipo Imagen
 										=============================================*/
 
-										if($item->type_column == "image"){
+													if ($item->type_column == "image") {
 
-											echo '<a href="'.urldecode($value[$item->title_column]).'" target="_blank">
-												<img src="'.urldecode($value[$item->title_column]).'" class="rounded" style="width:60px; height:60px; object-fit: cover; object-position:center;">
+														echo '<a href="' . urldecode($value[$item->title_column]) . '" target="_blank">
+												<img src="' . urldecode($value[$item->title_column]) . '" class="rounded" style="width:60px; height:60px; object-fit: cover; object-position:center;">
 											</a>';
 
-										/*=============================================
+														/*=============================================
 										Contenido tipo Video
 										=============================================*/
+													} else if ($item->type_column == "video") {
 
-										}else if($item->type_column == "video"){
-
-											echo '<a href="'.urldecode($value[$item->title_column]).'" target="_blank">
+														echo '<a href="' . urldecode($value[$item->title_column]) . '" target="_blank">
 												<img src="/views/assets/img/video.png" class="rounded" style="width:60px; height:60px; object-fit: cover; object-position:center;">
 											</a>';
 
-										/*=============================================
+														/*=============================================
 										Contenido tipo otros Archivos
 										=============================================*/
+													} else if ($item->type_column == "file") {
 
-										}else if($item->type_column == "file"){
-
-											echo '<a href="'.urldecode($value[$item->title_column]).'" target="_blank">
+														echo '<a href="' . urldecode($value[$item->title_column]) . '" target="_blank">
 												<img src="/views/assets/img/file.png" class="rounded" style="width:60px; height:60px; object-fit: cover; object-position:center;">
 											</a>';
 
 
-										/*=============================================
+														/*=============================================
 										Contenido tipo Boleano
 										=============================================*/
+													} else if ($item->type_column == "boolean") {
 
-										}else if($item->type_column == "boolean"){
 
+														if ($value[$item->title_column] == 1) {
 
-											if($value[$item->title_column] == 1){	
+															$checked = 'checked';
+															$label = "ON";
+														} else {
 
-												$checked = 'checked';
-												$label = "ON";
-											
-											}else{
+															$checked = '';
+															$label = "OFF";
+														}
 
-												$checked = '';
-												$label = "OFF";
-											}
+														if ($_SESSION["admin"]->rol_admin == "superadmin" || $module->editable_module == 1) {
 
-											if ($_SESSION["admin"]->rol_admin == "superadmin" || $module->editable_module == 1){
-
-												echo '<div class="form-check form-switch">
-												<input class="form-check-input px-3 changeBoolean" type="checkbox" id="mySwtich" '.$checked.' idItem="'.base64_encode($value["id_".$module->suffix_module]).'" table="'.$module->title_module.'" suffix="'.$module->suffix_module.'" column="'.$item->title_column.'">
-												<label class="form-check-label ps-1 align-middle" for="mySwitch">'.$label.'</label>
+															echo '<div class="form-check form-switch">
+												<input class="form-check-input px-3 changeBoolean" type="checkbox" id="mySwtich" ' . $checked . ' idItem="' . base64_encode($value["id_" . $module->suffix_module]) . '" table="' . $module->title_module . '" suffix="' . $module->suffix_module . '" column="' . $item->title_column . '">
+												<label class="form-check-label ps-1 align-middle" for="mySwitch">' . $label . '</label>
 												</div>';
+														} else {
 
-											}else{
+															echo '<label class="form-check-label ps-1 align-middle" for="mySwitch">' . $label . '</label>';
+														}
 
-												echo '<label class="form-check-label ps-1 align-middle" for="mySwitch">'.$label.'</label>';
-											}
-
-										/*=============================================
+														/*=============================================
 										Contenido tipo Array
 										=============================================*/
-									    }else if($item->type_column == "array"){
+													} else if ($item->type_column == "array") {
 
-									    	$typeArray = explode(",",urldecode($value[$item->title_column]));
+														$typeArray = explode(",", urldecode($value[$item->title_column]));
 
-									    	foreach ($typeArray as $num => $elem){
-										
-												echo '<span class="badge badge-sm badge-default rounded bg-dark py-1 px-2 mx-1 mt-1 border small">'.TemplateController::reduceText($elem,25).'</span>';
+														foreach ($typeArray as $num => $elem) {
 
-											}
+															echo '<span class="badge badge-sm badge-default rounded bg-dark py-1 px-2 mx-1 mt-1 border small">' . TemplateController::reduceText($elem, 25) . '</span>';
+														}
 
-										/*=============================================
+														/*=============================================
 										Contenido tipo Objetos
 										=============================================*/
+													} else if ($item->type_column == "object") {
 
-										}else if($item->type_column == "object"){
+														$typeJSON = json_decode(urldecode($value[$item->title_column]));
 
-									    	$typeJSON = json_decode(urldecode($value[$item->title_column]));
+														foreach ($typeJSON as $num => $elem) {
 
-									    	foreach ($typeJSON as $num => $elem){
+															echo '<span class="badge badge-sm badge-default rounded py-1 px-2 mx-1 mt-1 border text-dark text-uppercase small">' . $num . ': ' . $elem . '</span>';
+														}
 
-									    		echo '<span class="badge badge-sm badge-default rounded py-1 px-2 mx-1 mt-1 border text-dark text-uppercase small">'.$num.': '.$elem.'</span>';
-
-									    	}
-
-									    /*=============================================
+														/*=============================================
 										Contenido tipo Enlace
 										=============================================*/
+													} else if ($item->type_column == "link") {
 
-										}else if($item->type_column == "link"){
+														echo '<a href="' . $value[$item->title_column] . '" target="_blank" class="badge badge-default border rounded bg-indigo">' . TemplateController::reduceText(urldecode($value[$item->title_column]), 20) . '</a>';
 
-									    	echo '<a href="'.$value[$item->title_column].'" target="_blank" class="badge badge-default border rounded bg-indigo">'.TemplateController::reduceText(urldecode($value[$item->title_column]), 20).'</a>';
-
-										/*=============================================
+														/*=============================================
 										Contenido tipo Color
 										=============================================*/
+													} else if ($item->type_column == "color") {
 
-										}else if($item->type_column == "color"){
+														echo '<div class="rounded border" style="width:25px; height:25px; background:' . urldecode($value[$item->title_column]) . '"></div>';
 
-									    	echo '<div class="rounded border" style="width:25px; height:25px; background:'.urldecode($value[$item->title_column]).'"></div>';
-
-									    /*=============================================
+														/*=============================================
 										Contenido tipo Double
 										=============================================*/
+													} else if ($item->type_column == "money") {
 
-										}else if($item->type_column == "money"){
+														echo '$' . number_format(urldecode($value[$item->title_column]), 2);
 
-									    	echo '$'.number_format(urldecode($value[$item->title_column]),2);
-
-									    /*=============================================
+														/*=============================================
 										Contenido tipo Relaciones
 										=============================================*/
+													} else if ($item->type_column == "relations") {
 
-										}else if($item->type_column == "relations"){
+														if ($item->matrix_column != null && $value[$item->title_column] > 0) {
 
-											if($item->matrix_column != null && $value[$item->title_column] > 0){
+															$url = "relations?rel=modules,pages&type=module,page&linkTo=type_module,title_module&equalTo=tables," . $item->matrix_column . "&select=url_page,suffix_module";
+															$method = "GET";
+															$array = array();
 
-												$url = "relations?rel=modules,pages&type=module,page&linkTo=type_module,title_module&equalTo=tables,".$item->matrix_column."&select=url_page,suffix_module";
-												$method = "GET";
-												$array = array();
+															$urlPage = CurlController::request($url, $method, $fields)->results[0]->url_page;
+															$suffixModule = CurlController::request($url, $method, $fields)->results[0]->suffix_module;
 
-												$urlPage = CurlController::request($url,$method,$fields)->results[0]->url_page;
-												$suffixModule = CurlController::request($url,$method,$fields)->results[0]->suffix_module;
+															$url = $item->matrix_column . '?linkTo=id_' . $suffixModule . "&equalTo=" . $value[$item->title_column];
+															$relation = CurlController::request($url, $method, $fields);
+															$arrayRelation  = (array)$relation->results[0];
 
-												$url = $item->matrix_column.'?linkTo=id_'.$suffixModule."&equalTo=".$value[$item->title_column];
-												$relation = CurlController::request($url,$method,$fields);
-												$arrayRelation  = (array)$relation->results[0];
-						
-												echo '<a href="'.$urlPage.'/manage/'.base64_encode($value[$item->title_column]).'" target="_blank" class="badge badge-default border rounded bg-indigo">'.urldecode($arrayRelation[array_keys($arrayRelation)[1]]).'</a>';
+															echo '<a href="' . $urlPage . '/manage/' . base64_encode($value[$item->title_column]) . '" target="_blank" class="badge badge-default border rounded bg-indigo">' . urldecode($arrayRelation[array_keys($arrayRelation)[1]]) . '</a>';
+														} else {
 
-											}else{
+															echo $value[$item->title_column];
+														}
 
-												echo $value[$item->title_column]; 
-
-											}
-
-										/*=============================================
+														/*=============================================
 										Contenido tipo Órden
 										=============================================*/
-
-										}else if($item->type_column == "order"){
-
-
-											echo '<input type="number" class="form-control form-control-sm rounded changeOrder" value="'.$value[$item->title_column].'" style="width:55px" idItem="'.base64_encode($value["id_".$module->suffix_module]).'" table="'.$module->title_module.'" suffix="'.$module->suffix_module.'" column="'.$item->title_column.'">';
+													} else if ($item->type_column == "order") {
 
 
-										}else{
+														echo '<input type="number" class="form-control form-control-sm rounded changeOrder" value="' . $value[$item->title_column] . '" style="width:55px" idItem="' . base64_encode($value["id_" . $module->suffix_module]) . '" table="' . $module->title_module . '" suffix="' . $module->suffix_module . '" column="' . $item->title_column . '">';
+													} else {
 
-			        						echo TemplateController::reduceText(urldecode($value[$item->title_column]),25); 
+														echo TemplateController::reduceText(urldecode($value[$item->title_column]), 25);
+													}
 
-			        					}
 
+													?>
 
-		        						?> 
+												</td>
 
-		        						</td>
+											<?php endif ?>
 
-		        					<?php endif ?>
-						
-	        					<?php endforeach ?>
+										<?php endforeach ?>
 
-	        				 <?php if ($_SESSION["admin"]->rol_admin == "superadmin" || $module->editable_module == 1): ?>
+										<?php if ($_SESSION["admin"]->rol_admin == "superadmin" || $module->editable_module == 1): ?>
 
-	        					<td class="text-center">
-		        					<a href="/<?php echo $module->url_page ?>/manage/<?php echo base64_encode($value["id_".$module->suffix_module]) ?>/copy" class="btn btn-sm text-dark rounded m-0 p-0 border-0">
-		        						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-copy" viewBox="0 0 16 16">
-										  <path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/>
-										</svg>
-		        					</a>
-		        					<a href="/<?php echo $module->url_page ?>/manage/<?php echo base64_encode($value["id_".$module->suffix_module]) ?>" class="btn btn-sm text-primary rounded m-0 p-0 border-0">
-		        						<i class="bi bi-pencil-square"></i>
-		        					</a>
-		        					<button type="button" class="btn btn-sm text-maroon rounded m-0 p-0 border-0 deleteItem" idItem="<?php echo base64_encode($value["id_".$module->suffix_module]) ?>" table="<?php echo $module->title_module ?>" suffix="<?php echo $module->suffix_module ?>">
-		        						<i class="bi bi-trash"></i>
-		        					</button>
-		        				</td>
+											<td class="text-center">
+												<a href="/<?php echo $module->url_page ?>/manage/<?php echo base64_encode($value["id_" . $module->suffix_module]) ?>/copy" class="btn btn-sm text-dark rounded m-0 p-0 border-0">
+													<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-copy" viewBox="0 0 16 16">
+														<path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z" />
+													</svg>
+												</a>
+												<a href="/<?php echo $module->url_page ?>/manage/<?php echo base64_encode($value["id_" . $module->suffix_module]) ?>" class="btn btn-sm text-primary rounded m-0 p-0 border-0">
+													<i class="bi bi-pencil-square"></i>
+												</a>
+												<button type="button" class="btn btn-sm text-maroon rounded m-0 p-0 border-0 deleteItem" idItem="<?php echo base64_encode($value["id_" . $module->suffix_module]) ?>" table="<?php echo $module->title_module ?>" suffix="<?php echo $module->suffix_module ?>">
+													<i class="bi bi-trash"></i>
+												</button>
+											</td>
 
-		        				<?php endif ?>
+										<?php endif ?>
 
-	        				</tr>
-	        					
-	        				<?php endforeach ?>	
+									</tr>
 
-	        			<?php else: ?>
+								<?php endforeach ?>
 
-	        				<tr>
-	        					<td colspan="<?php echo $totalColumns ?>" class="text-center py-3">No hay registros disponibles</td>
-	        				</tr>
-	        				
-	        			<?php endif ?>
-	        			
-	        		</tbody>
+							<?php else: ?>
 
-	        	</table>
-	        </div>	
+								<tr>
+									<td colspan="<?php echo $totalColumns ?>" class="text-center py-3">No hay registros disponibles</td>
+								</tr>
 
-	        <?php if (!empty($table)): ?>
+							<?php endif ?>
 
-	        <!--=========================================
+						</tbody>
+
+					</table>
+				</div>
+
+				<?php if (!empty($table)): ?>
+
+					<!--=========================================
 	        Bloque final
-	        ===========================================-->	
+	        ===========================================-->
 
-	        <div class="d-lg-flex justify-content-lg-between mt-2 mb-0">
+					<div class="d-lg-flex justify-content-lg-between mt-2 mb-0">
 
-	        	<!--=========================================
+						<!--=========================================
 	        	Visualización de registros
-	        	===========================================-->	
+	        	===========================================-->
 
-	        	<div class="mb-3 blockFooter" id="cont-filters">
+						<div class="mb-3 blockFooter" id="cont-filters">
 
-	        		<small>Mostrando
-	        			<span id="startItems">1</span> a 
-	        			<span id="endItems"><?php echo $limit ?></span> de
-	        			<span id="totalItems"><?php echo $totalData ?></span>
-	        		</small>
-	        		
-	        	</div>
+							<small>Mostrando
+								<span id="startItems">1</span> a
+								<span id="endItems"><?php echo $limit ?></span> de
+								<span id="totalItems"><?php echo $totalData ?></span>
+							</small>
 
-	        	<!--=========================================
+						</div>
+
+						<!--=========================================
 	        	Paginación
-	        	===========================================-->	
+	        	===========================================-->
 
-	        	<div class="mb-3 blockFooter" id="cont-pagination">
+						<div class="mb-3 blockFooter" id="cont-pagination">
 
-		        	<ul id="pagination" class="pagination pagination-sm rounded" totalPages="<?php echo $totalPages ?>">
-		        	</ul>
+							<ul id="pagination" class="pagination pagination-sm rounded" totalPages="<?php echo $totalPages ?>">
+							</ul>
 
-		        </div>
-	        	
-	        </div>
+						</div>
 
-	        <?php endif ?>
+					</div>
+
+				<?php endif ?>
+
+			</div>
 
 		</div>
 
 	</div>
+	<!-- Librerías necesarias para exportación -->
 
-</div>
 
-<?php 
+	<!--=============================================
+	DATATABLES
+	===============================================-->
+	<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+	<script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
+	<script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js"></script>
+	<script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.print.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
 
-  include "views/modules/modals/booleans.php"; 
-  include "views/modules/modals/selects.php"; 
+	<script>
+		$(document).ready(function() {
+			const rowCount = $('.exportable tbody tr').length;
+			const onlyNoDataRow = $('.exportable tbody tr td[colspan]').length > 0;
 
-?>
+			// ✅ Si no hay datos o solo hay fila "No hay registros disponibles", NO inicializar
+			if (rowCount === 0 || onlyNoDataRow) {
+				console.warn("DataTables no se inicializa porque no hay datos válidos.");
+				return;
+			}
+
+			const tabla = $('.exportable').DataTable({
+				dom: 'Bfrtip',
+				buttons: [{
+						extend: 'excelHtml5',
+						title: 'Exportación',
+						className: 'd-none',
+						exportOptions: {
+							columns: ':visible:not(:last-child)'
+						}
+					},
+					{
+						extend: 'pdfHtml5',
+						title: 'Exportación',
+						className: 'd-none',
+						orientation: 'landscape',
+						pageSize: 'A4',
+						exportOptions: {
+							columns: ':visible:not(:last-child)'
+						}
+					}
+				],
+				paging: false,
+				searching: false,
+				info: false
+			});
+
+			$('.exportExcelBtn').on('click', function() {
+				tabla.button('.buttons-excel').trigger();
+			});
+			$('.exportPdfBtn').on('click', function() {
+				tabla.button('.buttons-pdf').trigger();
+			});
+		});
+
+	</script>
+
+	<?php
+
+	include "views/modules/modals/booleans.php";
+	include "views/modules/modals/selects.php";
+
+	?>
 
 <?php endif ?>

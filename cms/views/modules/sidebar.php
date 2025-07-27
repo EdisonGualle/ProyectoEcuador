@@ -18,11 +18,13 @@ if($pages->status == 200){
 
 ?>
 
+
+
 <div class="bg-white shadow" id="sidebar-wrapper">
 
 	<div class="sidebar-heading bg-white text-dark my-2">
-		<?php echo $admin->symbol_admin ?>
-		<span class="menu-text"><?php echo $admin->title_admin ?></span>
+		<img src="/views/assets/img/ProyectoEcuadorLogo.png" alt="Proyecto Ecuador"
+						style="height: 70px; object-fit: contain; ">
 	</div>
 
 	<hr class="mt-0 borderDashboard">

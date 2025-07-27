@@ -1,5 +1,6 @@
 <?php
 
+require_once "../extensions/env.loader.php";
 require_once "../controllers/curl.controller.php";
 
 class DynamicFormsController{

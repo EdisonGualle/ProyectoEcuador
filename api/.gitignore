@@ -1,0 +1,25 @@
+# Archivos y carpetas sensibles
+.env
+php_error_log
+
+# Dependencias de PHP
+/vendor/
+
+# Dependencias de Node
+/node_modules/
+
+# Archivos de composer
+composer.lock
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Archivos de caché
+/storage/*.key
+/storage/framework/*
+/storage/logs/*
+/bootstrap/cache/*

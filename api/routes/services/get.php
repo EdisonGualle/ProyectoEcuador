@@ -1,4 +1,5 @@
 <?php
+require_once "rate-limiter.php";
 
 require_once "controllers/get.controller.php";
 require_once "models/connection.php";
